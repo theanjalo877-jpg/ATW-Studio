@@ -225,3 +225,56 @@ document.querySelectorAll('.project, .build-bay').forEach(project => projectObse
     document.addEventListener('studio-motion', syncScene);
   }
 }
+
+// Fragment links need to stay inside Streamlit's embedded document.
+{
+  const dialog = document.querySelector('#contact-dialog');
+  const heading = document.querySelector('#contact-heading');
+  const message = document.querySelector('#contact-message');
+  const address = document.querySelector('#contact-address');
+  const status = document.querySelector('#copy-status');
+  const compose = document.querySelector('#compose-email');
+  const composeUrl = new URL(compose.href);
+  let opener;
+
+  document.addEventListener('click', event => {
+    const link = event.target.closest('a[href^="#"]');
+    if (!link || event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const target = document.getElementById(link.getAttribute('href').slice(1));
+    if (!target) return;
+    event.preventDefault();
+    if (link.dataset.contact && typeof dialog.showModal === 'function') {
+      const project = link.dataset.contact === 'project';
+      opener = link;
+      heading.textContent = project ? 'Discuss your project' : 'Email Anjalo';
+      message.textContent = project ? 'Tell me which app you’re interested in or what you’d like to improve.' : 'Copy the address or open a new message in Gmail.';
+      composeUrl.searchParams.set('su', project ? 'ATW Studio project consultation' : 'Hello from ATW Studio');
+      compose.href = composeUrl.href;
+      status.textContent = '';
+      dialog.showModal();
+      return;
+    }
+
+    const focus = target.querySelector('h2') || target;
+    if (!focus.hasAttribute('tabindex')) focus.tabIndex = -1;
+    focus.focus({preventScroll:true});
+    target.scrollIntoView({behavior:reduced.matches ? 'instant' : 'smooth', block:'start'});
+    if (target.id === 'work') {
+      target.classList.remove('section-arrival');
+      void target.offsetWidth;
+      target.classList.add('section-arrival');
+    }
+  });
+
+  dialog.addEventListener('close', () => opener?.focus({preventScroll:true}));
+  document.querySelector('#copy-address').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(address.value);
+      status.textContent = 'Email address copied.';
+    } catch {
+      address.focus();
+      address.select();
+      status.textContent = 'Email selected. Use your device’s Copy command.';
+    }
+  });
+}
