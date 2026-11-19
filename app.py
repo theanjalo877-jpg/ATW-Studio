@@ -13,9 +13,11 @@ ASSETS = Path(__file__).with_name("dist")
 def portfolio_html():
     page = (ASSETS / "index.html").read_text(encoding="utf-8")
     styles = (ASSETS / "studio.css").read_text(encoding="utf-8")
-    script = (ASSETS / "studio.js").read_text(encoding="utf-8")
+    scripts = []
+    for name in ("three.min.js", "depot.js", "studio.js"):
+        scripts.append((ASSETS / name).read_text(encoding="utf-8"))
+        page = page.replace(f'<script src="{name}" defer></script>', "")
     page = page.replace('<link rel="stylesheet" href="studio.css">', f"<style>{styles}</style>")
-    page = page.replace('<script src="studio.js" defer></script>', "")
 
     def embed_image(match):
         name = match[1]
@@ -23,7 +25,8 @@ def portfolio_html():
         return f'"data:image/webp;base64,{encoded}"'
 
     page = re.sub(r'"([a-z0-9-]+\.webp)"', embed_image, page)
-    return page.replace("</body>", f"<script>{script}</script></body>")
+    embedded = "".join(f"<script>{code}</script>" for code in scripts)
+    return page.replace("</body>", embedded + "</body>")
 
 
 st.set_page_config(page_title="ATW Studio · Anjalo Theophine Wilson", layout="wide")

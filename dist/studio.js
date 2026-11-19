@@ -28,12 +28,9 @@ const canAnimate = () => !paused && !reduced.matches;
     const names = [...title.querySelectorAll('.weld-letter')];
     const initials = splitText(mark);
     const sparks = [];
-    const vehicles = Object.fromEntries([...stage.querySelectorAll('[data-vehicle]')]
-      .map(image => [image.dataset.vehicle, image]));
-    const cycle = 37;
+    const depot = createDepot(stage.querySelector('.depot-models'));
+    const cycle = 52;
     const clamp = value => Math.max(0, Math.min(1, value));
-    const ease = value => value * value * (3 - 2 * value);
-    const mix = (start, end, factor) => start + (end - start) * factor;
     let view, width, height, projection, ticket, elapsed = 0, previous = 0, visible = false;
 
     function refreshSize() {
@@ -52,6 +49,7 @@ const canAnimate = () => !paused && !reduced.matches;
         left: bounds.left - view.left + (bounds.width - iw) * position[0],
         top: bounds.top - view.top + (bounds.height - ih) * position[1],
       };
+      if (photo.naturalWidth && width && height) depot?.resize(projection, width, height);
     }
 
     function project(u, v) {
@@ -110,84 +108,6 @@ const canAnimate = () => !paused && !reduced.matches;
       }
     }
 
-    function haze(x, y, size, time) {
-      for (let i = 0; i < 3; i++) {
-        const age = (time * .38 + i / 3) % 1;
-        const radius = size * (.12 + age * .17);
-        const px = x + size * (.29 + age * .34), py = y - size * (.10 + age * .15);
-        const puff = pen.createRadialGradient(px, py, 0, px, py, radius);
-        puff.addColorStop(0, 'rgba(142,155,153,' + .102 * (1 - age) + ')');
-        puff.addColorStop(1, 'rgba(142,155,153,0)');
-        pen.fillStyle = puff;
-        pen.fillRect(px - radius, py - radius, radius * 2, radius * 2);
-      }
-    }
-
-    // Normalized coordinates measured on each cropped vehicle's lamp housings.
-    const fittings = {
-      parking: { lights:[[.091,.752],[.454,.748]], signal:[.067,.757], nose:-1 },
-      approach: { lights:[[.184,.713],[.823,.713]], signal:[.866,.706], nose:0 },
-      exit: { lights:[[.120,.784],[.866,.784]], signal:[.937,.783], nose:0 },
-    };
-
-    function vehicle(kind, u, v, fraction, opacity, time, moving, turning, flash = 0) {
-      const image = vehicles[kind];
-      if (!image.complete || !image.naturalWidth || opacity <= 0) return;
-      const [x, y] = project(u, v);
-      const w = projection.iw * fraction;
-      const h = w * image.naturalHeight / image.naturalWidth;
-      const left = x - w / 2, top = y - h;
-      const fit = fittings[kind];
-      const rear = kind === 'exit';
-      const color = rear ? 'rgba(255,66,40,' : 'rgba(226,235,243,';
-      function glow([a, b], radius, intensity, tint) {
-        return lamp(u + w * (a - .5) / projection.iw, v - h * (1 - b) / projection.ih,
-                    radius, intensity, tint, 1.25);
-      }
-      pen.save();
-      pen.globalAlpha = opacity;
-      groundGlow(x, y + 1, w * .68, '#000b');
-      if (moving) haze(x, y, w, time);
-      pen.filter = 'brightness(.69) saturate(.68)';
-      pen.drawImage(image, left, top, w, h);
-      pen.filter = 'none';
-      fit.lights.forEach(([a,b]) => {
-        const lightX = left + w * a, lightY = top + h * b;
-        if (!rear) beam(lightX, lightY, h * (.61 + flash * .72), w * (.36 + flash * .35),
-                        moving ? .075 + flash * .17 : .035, w * (fit.nose * .5 + a - .5));
-        glow([a,b], Math.max(2, w * (.052 + flash * .04)), rear ? .55 : moving ? .49 + flash * .46 : .23, color);
-        groundGlow(lightX, y + h * .105, w * (.34 + flash * .28), rear ? '#e13a231e' : 'rgba(216,231,245,' + (.13 + flash * .21) + ')');
-      });
-      if (turning && time % .82 < .36) {
-        glow(fit.signal, Math.max(3, w * .066), .89, 'rgba(255,160,40,');
-      }
-      pen.restore();
-    }
-
-    function entranceFlash(time, start) {
-      return Math.sin(Math.PI * clamp((time - start) / .58)) ** 2;
-    }
-
-    function traffic(time) {
-      highBeam(time);
-      const resetFade = 1 - ease(clamp((time - 35.5) / 1.5));
-      if (time >= 2.4) {
-        const p = ease(clamp((time - 2.4) / 9.8));
-        vehicle('parking', mix(.581, .452, p), mix(.696, .808, p), mix(.023, .126, p),
-                ease(clamp((time - 2.4) / 2)) * resetFade, time, p < 1, p > .04 && p < .94, entranceFlash(time, 3.25));
-      }
-      if (time >= 11.5) {
-        const p = ease(clamp((time - 11.5) / 12.1));
-        vehicle('approach', mix(.634, width < 580 ? .67 : .745, p), mix(.701, .944, p), mix(.022, .165, p),
-                ease(clamp((time - 11.5) / 2)) * resetFade, time, p < 1, p > .12 && p < .42, entranceFlash(time, 12.5));
-      }
-      if (time >= 23.8) {
-        const p = ease(clamp((time - 23.8) / 12));
-        vehicle('exit', mix(.499, .609, p), mix(1.25, .683, p), mix(.31, .014, p),
-                (1 - ease(clamp((p - .84) / .16))) * resetFade, time, true, p > .31 && p < .78);
-      }
-    }
-
     function weld() {
       const time = elapsed % cycle;
       const showName = time < 7.4;
@@ -230,7 +150,12 @@ const canAnimate = () => !paused && !reduced.matches;
       lamp(.852, .295, 34, voltage * .85, 'rgba(255,184,87,', 1.4);
       lamp(.765, .46, 30, voltage * .68, 'rgba(255,184,87,', 1.5);
       lamp(.622, .25, 55, voltage * .35, 'rgba(107,151,187,', 2.0);
-      traffic(elapsed % cycle);
+      for (const light of depot?.draw(elapsed % cycle) || []) {
+        const {x,y,reach,drift,flash} = light;
+        beam(x, y, reach * (flash ? 1.6 : 1), reach * .48, flash ? .17 : .05, drift);
+        groundGlow(x + drift, y + reach * .53, reach * .50, flash ? '#d5e8ff40' : '#d5e8ff20');
+      }
+      highBeam(elapsed % cycle);
       weld();
       for (let index = sparks.length - 1; index >= 0; index--) {
         const spark = sparks[index];
@@ -253,6 +178,7 @@ const canAnimate = () => !paused && !reduced.matches;
       previous = 0;
       if (!canAnimate()) {
         stage.classList.remove('garage-live');
+        depot?.clear();
         pen.clearRect(0, 0, width, height);
       } else if (visible && photo.complete && photo.naturalWidth) {
         stage.classList.add('garage-live');
