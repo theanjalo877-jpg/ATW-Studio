@@ -165,4 +165,5 @@ section[id],footer[id]{scroll-margin-top:18px}
 .contact-options a:first-child{background:#234c3e;color:white;border-color:#234c3e}
 .contact-options a:hover,#copy-address:hover,.contact-close:hover{box-shadow:0 0 0 2px #7197855e}
 .copy-status{margin:5px 0;min-height:1.55em;font-size:.92rem}
-.depot-models{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.stage-video{opacity:0}
+.stage-video.is-playing{opacity:1}

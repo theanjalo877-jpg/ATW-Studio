@@ -7,7 +7,7 @@ const canAnimate = () => !paused && !reduced.matches;
 
 {
   const canvas = stage.querySelector('.garage-effects');
-  const photo = stage.querySelector('.stage-picture');
+  const video = stage.querySelector('.stage-video');
   const pen = canvas.getContext('2d');
   if (pen) {
     const mark = stage.querySelector('.monogram');
@@ -28,10 +28,7 @@ const canAnimate = () => !paused && !reduced.matches;
     const names = [...title.querySelectorAll('.weld-letter')];
     const initials = splitText(mark);
     const sparks = [];
-    const depot = createDepot(stage.querySelector('.depot-models'));
-    const cycle = 52;
-    const clamp = value => Math.max(0, Math.min(1, value));
-    let view, width, height, projection, ticket, elapsed = 0, previous = 0, visible = false;
+    let view, width, height, ticket, elapsed = 0, previous = 0, visible = false;
 
     function refreshSize() {
       view = canvas.getBoundingClientRect();
@@ -40,76 +37,10 @@ const canAnimate = () => !paused && !reduced.matches;
       canvas.width = Math.round(width * resolution);
       canvas.height = Math.round(height * resolution);
       pen.setTransform(resolution, 0, 0, resolution, 0, 0);
-      const bounds = photo.getBoundingClientRect();
-      const scale = Math.max(bounds.width / photo.naturalWidth, bounds.height / photo.naturalHeight);
-      const iw = photo.naturalWidth * scale, ih = photo.naturalHeight * scale;
-      const position = getComputedStyle(photo).objectPosition.split(' ').map(n => parseFloat(n) / 100);
-      projection = {
-        iw, ih,
-        left: bounds.left - view.left + (bounds.width - iw) * position[0],
-        top: bounds.top - view.top + (bounds.height - ih) * position[1],
-      };
-      if (photo.naturalWidth && width && height) depot?.resize(projection, width, height);
-    }
-
-    function project(u, v) {
-      return [projection.left + u * projection.iw, projection.top + v * projection.ih];
-    }
-
-    function lamp(u, v, size, strength, color, aspect = 1) {
-      const [x, y] = project(u, v);
-      if (!Number.isFinite(x + y)) return;
-      pen.save();
-      pen.translate(x, y);
-      pen.scale(aspect, 1);
-      const aura = pen.createRadialGradient(0, 0, 0, 0, 0, size);
-      aura.addColorStop(0, 'rgba(255,234,173,' + strength + ')');
-      aura.addColorStop(.19, color + strength * .7 + ')');
-      aura.addColorStop(1, color + '0)');
-      pen.fillStyle = aura;
-      pen.fillRect(-size, -size, size * 2, size * 2);
-      pen.restore();
-    }
-
-    function beam(x, y, reach, spread, strength, drift) {
-      const glow = pen.createLinearGradient(x, y, x + drift, y + reach);
-      glow.addColorStop(0, 'rgba(247,235,203,' + strength + ')');
-      glow.addColorStop(1, 'rgba(225,235,240,0)');
-      pen.fillStyle = glow;
-      pen.beginPath();
-      pen.moveTo(x - 1, y);
-      pen.lineTo(x + drift - spread, y + reach);
-      pen.lineTo(x + drift + spread, y + reach);
-      pen.lineTo(x + 1, y);
-      pen.fill();
-    }
-
-    function groundGlow(x, y, radius, color) {
-      pen.save();
-      pen.translate(x, y);
-      pen.scale(1, .22);
-      const reflected = pen.createRadialGradient(0, 0, 0, 0, 0, radius);
-      reflected.addColorStop(0, color);
-      reflected.addColorStop(1, 'transparent');
-      pen.fillStyle = reflected;
-      pen.fillRect(-radius, -radius, radius * 2, radius * 2);
-      pen.restore();
-    }
-
-    function highBeam(time) {
-      const phase = (time + 5.4) % 8.8;
-      const flash = Math.sin(Math.PI * clamp((phase - 1.0) / .56)) ** 2;
-      const color = 'rgba(232,241,255,';
-      for (const u of [.540, .550]) {
-        const [x, y] = project(u, .674);
-        beam(x, y, projection.ih * .32, projection.iw * .12, .095 * flash, (u - .545) * projection.iw * 7);
-        lamp(u, .674, Math.max(6, projection.iw * .009), .20 + .64 * flash, color);
-        groundGlow(x, y + projection.ih * .053, Math.max(12, projection.iw * .023), 'rgba(201,223,244,' + .13 * flash + ')');
-      }
     }
 
     function weld() {
-      const time = elapsed % cycle;
+      const time = elapsed;
       const showName = time < 7.4;
       stage.dataset.title = showName ? 'name' : 'mark';
       const letters = showName ? names : initials;
@@ -138,24 +69,6 @@ const canAnimate = () => !paused && !reduced.matches;
       previous = now;
       elapsed += dt;
       pen.clearRect(0, 0, width, height);
-      const pulse = elapsed % 1.4;
-      if (pulse < .47) {
-        const amber = 'rgba(255,162,44,';
-        lamp(.841, .679, 23, .83, amber, 1.4);
-        lamp(.932, .693, 18, .68, amber, 1.6);
-        lamp(.871, .885, 32, .23, amber, 2.2);
-      }
-      const voltage = .33 + Math.sin(elapsed * 2.1) * .16 + Math.sin(elapsed * 4.6) * .06;
-      lamp(.949, .11, 38, voltage, 'rgba(255,184,87,', 1.7);
-      lamp(.852, .295, 34, voltage * .85, 'rgba(255,184,87,', 1.4);
-      lamp(.765, .46, 30, voltage * .68, 'rgba(255,184,87,', 1.5);
-      lamp(.622, .25, 55, voltage * .35, 'rgba(107,151,187,', 2.0);
-      for (const light of depot?.draw(elapsed % cycle) || []) {
-        const {x,y,reach,drift,flash} = light;
-        beam(x, y, reach * (flash ? 1.6 : 1), reach * .48, flash ? .17 : .05, drift);
-        groundGlow(x + drift, y + reach * .53, reach * .50, flash ? '#d5e8ff40' : '#d5e8ff20');
-      }
-      highBeam(elapsed % cycle);
       weld();
       for (let index = sparks.length - 1; index >= 0; index--) {
         const spark = sparks[index];
@@ -170,17 +83,19 @@ const canAnimate = () => !paused && !reduced.matches;
         pen.lineTo(spark.x - spark.dx * .015, spark.y - spark.dy * .015);
         pen.stroke();
       }
-      ticket = requestAnimationFrame(frame);
+      if (elapsed < 10.5 || sparks.length) ticket = requestAnimationFrame(frame);
     }
 
     function syncGarage() {
       cancelAnimationFrame(ticket);
       previous = 0;
-      if (!canAnimate()) {
+      if (!canAnimate() || !visible || document.hidden) {
+        video.pause();
+        if (reduced.matches) video.classList.remove('is-playing');
         stage.classList.remove('garage-live');
-        depot?.clear();
         pen.clearRect(0, 0, width, height);
-      } else if (visible && photo.complete && photo.naturalWidth) {
+      } else {
+        video.play().catch(() => {});
         stage.classList.add('garage-live');
         ticket = requestAnimationFrame(frame);
       }
@@ -200,9 +115,12 @@ const canAnimate = () => !paused && !reduced.matches;
       syncGarage();
       document.dispatchEvent(new Event('studio-motion'));
     }
-    photo.decode().then(() => {refreshSize(); syncMotion();}).catch(() => {});
+    video.addEventListener('playing', () => video.classList.add('is-playing'));
+    video.addEventListener('error', () => video.classList.remove('is-playing'));
+    document.addEventListener('visibilitychange', syncGarage);
+    syncMotion();
     motion.addEventListener('click', () => {paused = !paused; syncMotion();});
-    replay.addEventListener('click', () => {elapsed = 0; sparks.length = 0; syncGarage();});
+    replay.addEventListener('click', () => {elapsed = 0; sparks.length = 0; video.currentTime = 0; syncGarage();});
     reduced.addEventListener('change', syncMotion);
   }
 }
