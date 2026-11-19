@@ -6,7 +6,7 @@ function createDepot(canvas) {
   try {
     renderer = new T.WebGLRenderer({canvas, alpha:true, antialias:true});
   } catch {
-    return null;
+    renderer = createDepotCanvasRenderer(canvas, T);
   }
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.6));
   renderer.setClearColor(0, 0);
@@ -243,4 +243,66 @@ function createDepot(canvas) {
   }
 
   return {resize, draw, clear:() => renderer.clear()};
+}
+
+// Project the same geometry when hardware WebGL is unavailable.
+function createDepotCanvasRenderer(canvas, T) {
+  const surface = canvas.cloneNode(false);
+  canvas.replaceWith(surface);
+  const context = surface.getContext('2d');
+  const point = new T.Vector3();
+  const normal = new T.Vector3();
+  const normalMatrix = new T.Matrix3();
+  const light = new T.Vector3(.55, .68, .47).normalize();
+  let width, height;
+  function clear() { context.clearRect(0, 0, width, height); }
+  return {
+    setPixelRatio() {},
+    setClearColor() {},
+    setSize(w, h) {
+      width = surface.width = w;
+      height = surface.height = h;
+    },
+    clear,
+    render(scene, camera) {
+      clear();
+      scene.updateMatrixWorld(true);
+      camera.updateMatrixWorld(true);
+      const faces = [];
+      scene.traverseVisible(mesh => {
+        if (!mesh.isMesh || mesh.material.colorWrite === false) return;
+        const {position, normal: normals} = mesh.geometry.attributes;
+        const index = mesh.geometry.index;
+        const color = mesh.material.color;
+        normalMatrix.getNormalMatrix(mesh.matrixWorld);
+        const vertices = Array.from({length:position.count}, (_, i) => {
+          point.fromBufferAttribute(position, i).applyMatrix4(mesh.matrixWorld);
+          const depth = -point.z;
+          const hidden = depth <= .25 || (depth > 17.5 && Math.abs(point.x * 17.5 / depth) > 4.25);
+          point.project(camera);
+          return [(point.x+1)*width/2, (1-point.y)*height/2, depth, hidden];
+        });
+        for (let i = 0; i < index.count; i += 3) {
+          const vertex = index.getX(i);
+          const a = vertices[vertex], b = vertices[index.getX(i+1)], c = vertices[index.getX(i+2)];
+          if (a[3] || b[3] || c[3]) continue;
+          const area = (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+          if (area >= 0) continue;
+          normal.fromBufferAttribute(normals, vertex).applyNormalMatrix(normalMatrix);
+          const shade = mesh.material.isMeshBasicMaterial ? 1 : .38 + .68 * Math.max(0, normal.dot(light));
+          faces.push({a,b,c, depth:(a[2]+b[2]+c[2])/3, fill:mesh.material.map ? 'rgba(0,0,0,.32)' : '#' + color.clone().multiplyScalar(shade).getHexString()});
+        }
+      });
+      faces.sort((a,b) => b.depth-a.depth);
+      for (const {a,b,c,fill} of faces) {
+        context.beginPath();
+        context.moveTo(a[0],a[1]);
+        context.lineTo(b[0],b[1]);
+        context.lineTo(c[0],c[1]);
+        context.closePath();
+        context.fillStyle = fill;
+        context.fill();
+      }
+    },
+  };
 }
