@@ -40,6 +40,22 @@ function createDepot(canvas) {
     return mesh;
   }
 
+  function shell(parent, material, y, z, width, height, depth, radius) {
+    const outline = new T.Shape();
+    const x = width/2-radius, h = height/2-radius;
+    outline.moveTo(-x,-h);
+    outline.lineTo(x,-h);
+    outline.lineTo(x,h);
+    outline.lineTo(-x,h);
+    outline.closePath();
+    const hull = new T.Mesh(new T.ExtrudeGeometry(outline, {
+      depth:depth-2*radius, bevelEnabled:true, bevelSize:radius,
+      bevelThickness:radius, bevelSegments:3, steps:1,
+    }), material);
+    hull.position.set(0,y,z-depth/2+radius);
+    parent.add(hull);
+  }
+
   // Near the doorway, the building conceals vehicles that have turned behind its jambs.
   const occluder = new T.MeshBasicMaterial({colorWrite:false});
   for (const side of [-1, 1]) {
@@ -105,9 +121,9 @@ function createDepot(canvas) {
     box(root, dark, 0, .64, 0, 1.54, .31, length - .3);
     const faceY = coach ? .91 : 1.04;
     if (coach) {
-      box(root, body, 0, 1.42, 0, 2.52, 1.43, length);
+      shell(root, body, 1.42, 0, 2.52, 1.43, length, .14);
       box(root, trim, 0, 2.67, -.08, 2.49, 1.08, length - .16);
-      box(root, body, 0, 3.31, -.06, 2.45, .26, length - .19);
+      shell(root, body, 3.31, -.06, 2.45, .26, length - .19, .10);
       box(root, glass, 0, 2.69, front - .059, 2.29, .91, .045);
       for (const side of [-1, 1]) {
         for (let bay = 0; bay < 6; bay++) {
@@ -116,9 +132,9 @@ function createDepot(canvas) {
         }
       }
     } else {
-      box(root, body, 0, 1.72, front - 1.26, 2.51, 1.88, 2.54);
+      shell(root, body, 1.72, front - 1.26, 2.51, 1.88, 2.54, .20);
       box(root, glass, 0, 2.61, front + .017, 2.24, .62, .04);
-      box(root, body, 0, 3.01, front - 1.16, 2.47, .28, 2.38);
+      shell(root, body, 2.77, front - 1.18, 2.46, .46, 2.37, .19);
       for (const side of [-1, 1]) {
         box(root, glass, side * 1.26, 2.48, front - .83, .04, .59, 1.32);
         box(root, trim, side * 1.38, 2.31, front - .01, .25, .27, .14);
@@ -162,11 +178,11 @@ function createDepot(canvas) {
   const vector = (x, z) => new T.Vector3(x, 0, z);
   const path = (...points) => new T.CubicBezierCurve3(...points.map(([x,z]) => vector(x,z)));
 
-  const inbound = path([-2.8,-34],[-2.8,-23],[-3.1,-12.4],[-6.7,-9.3]);
-  const parkClear = path([-6.7,-9.3],[-9.6,-6.8],[-14,-5],[-23,-4]);
-  const near = path([.55,-31],[.55,-22],[2.5,-14.2],[3.45,-7.9]);
-  const nearClear = path([3.45,-7.9],[4,-4.2],[6.1,-3.4],[9.5,-2.6]);
-  const outbound = path([-1.15,.7],[-1.05,-8],[-.85,-16.2],[-.45,-25.2]);
+  const inbound = path([-2.8,-34],[-2.8,-23],[-3.1,-20],[-5.2,-16.5]);
+  const parkClear = path([-5.2,-16.5],[-7.2,-13.17],[-12,-12],[-27,-12]);
+  const near = path([.55,-31],[.55,-22],[1.15,-19],[1.55,-13]);
+  const nearClear = path([1.55,-13],[2,-6.25],[1.9,-.9],[2.3,7]);
+  const outbound = path([-1.15,-4.8],[-1.05,-10],[-.85,-16.2],[-.45,-25.2]);
   const beyondDoor = path([-.45,-25.2],[.1,-37.5],[11,-34.6],[26,-35]);
 
   const clamp = n => Math.max(0, Math.min(1,n));
@@ -282,9 +298,10 @@ function createDepotCanvasRenderer(canvas, T) {
           point.project(camera);
           return [(point.x+1)*width/2, (1-point.y)*height/2, depth, hidden];
         });
-        for (let i = 0; i < index.count; i += 3) {
-          const vertex = index.getX(i);
-          const a = vertices[vertex], b = vertices[index.getX(i+1)], c = vertices[index.getX(i+2)];
+        const vertexAt = i => index ? index.getX(i) : i;
+        for (let i = 0; i < (index ? index.count : position.count); i += 3) {
+          const vertex = vertexAt(i);
+          const a = vertices[vertex], b = vertices[vertexAt(i+1)], c = vertices[vertexAt(i+2)];
           if (a[3] || b[3] || c[3]) continue;
           const area = (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
           if (area >= 0) continue;
