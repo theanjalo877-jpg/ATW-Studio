@@ -89,7 +89,7 @@ footer .eyebrow,footer small{color:#b7c0ae}
 @media(max-width:580px){
  .top{flex-wrap:wrap;padding:14px 16px;gap:11px}.top nav{order:3;width:100%;justify-content:space-between;font-size:.83rem;gap:8px}.top-contact{padding:5px 11px}
  .hero{padding-bottom:20px}.stage{min-height:530px;height:70svh;max-height:600px}
- .stage-picture{object-position:64% center}
+ .stage-picture{object-position:56% center}
  .stage-grade{background:linear-gradient(90deg,#070c11de,#0c131967 72%),linear-gradient(0deg,#070c12e6,transparent 38%)}
  .name{top:43%;left:7%;font-size:clamp(32px,10cqw,60px)}.monogram{left:7%;font-size:clamp(83px,25cqw,146px)}
  .hero-bottom{padding:17px 13px}.hero-copy p{font-size:.91rem}.hero-copy p+p{font-size:.78rem}.replay{padding:7px 8px;font-size:.75rem}
