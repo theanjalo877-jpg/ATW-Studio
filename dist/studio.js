@@ -29,19 +29,21 @@ const canAnimate = () => !paused && !reduced.matches;
     const names = [...title.querySelectorAll('.weld-letter')];
     const initials = splitText(mark);
     const sparks = [];
-    let view, width, height, ticket, elapsed = 0, previous = 0, visible = false;
+    let view, width, height, ticket, stalled, elapsed = 0, previous = 0, visible = false;
+    let needsPlay = false;
 
     function refreshSize() {
       view = canvas.getBoundingClientRect();
       ({width, height} = view);
       // Match the video’s cover crop so the glow stays on the fixture.
-      const pictureWidth = Math.max(width, height * 16 / 9);
+      const videoHeight = video.clientHeight;
+      const pictureWidth = Math.max(width, videoHeight * 16 / 9);
       const pictureHeight = pictureWidth * 9 / 16;
       const horizontalAnchor = parseFloat(getComputedStyle(video).objectPosition) / 100;
       lightBed.style.width = pictureWidth + 'px';
       lightBed.style.height = pictureHeight + 'px';
       lightBed.style.left = (width - pictureWidth) * horizontalAnchor + 'px';
-      lightBed.style.top = (height - pictureHeight) / 2 + 'px';
+      lightBed.style.top = video.offsetTop + (videoHeight - pictureHeight) / 2 + 'px';
       const resolution = Math.min(devicePixelRatio || 1, 2);
       canvas.width = Math.round(width * resolution);
       canvas.height = Math.round(height * resolution);
@@ -95,16 +97,26 @@ const canAnimate = () => !paused && !reduced.matches;
       if (elapsed < 10.5 || sparks.length) ticket = requestAnimationFrame(frame);
     }
 
+    function showPlayButton() {
+      needsPlay = true;
+      motion.textContent = 'Play intro';
+      replay.disabled = true;
+    }
+
     function syncGarage() {
       cancelAnimationFrame(ticket);
       previous = 0;
       if (!canAnimate() || !visible || document.hidden) {
+        clearTimeout(stalled);
         video.pause();
         if (reduced.matches) video.classList.remove('is-playing');
         stage.classList.remove('garage-live');
         pen.clearRect(0, 0, width, height);
       } else {
-        video.play().catch(() => {});
+        video.muted = true;
+        video.play().catch(error => {
+          if (error.name !== 'AbortError' && canAnimate() && visible && !document.hidden) showPlayButton();
+        });
         stage.classList.add('garage-live');
         ticket = requestAnimationFrame(frame);
       }
@@ -118,17 +130,39 @@ const canAnimate = () => !paused && !reduced.matches;
     }).observe(stage);
     function syncMotion() {
       motion.hidden = replay.hidden = reduced.matches;
-      motion.textContent = paused ? 'Resume motion' : 'Pause motion';
-      replay.disabled = paused;
+      motion.textContent = needsPlay ? 'Play intro' : paused ? 'Resume motion' : 'Pause motion';
+      replay.disabled = paused || needsPlay;
       document.body.classList.toggle('motion-paused', !canAnimate());
       syncGarage();
       document.dispatchEvent(new Event('studio-motion'));
     }
-    video.addEventListener('playing', () => video.classList.add('is-playing'));
-    video.addEventListener('error', () => video.classList.remove('is-playing'));
+    video.addEventListener('playing', () => {
+      clearTimeout(stalled);
+      needsPlay = false;
+      video.classList.add('is-playing');
+      motion.textContent = 'Pause motion';
+      replay.disabled = false;
+    });
+    video.addEventListener('waiting', () => {
+      clearTimeout(stalled);
+      if (canAnimate() && visible) stalled = setTimeout(showPlayButton, 5000);
+    });
+    video.addEventListener('error', () => {
+      video.classList.remove('is-playing');
+      showPlayButton();
+    });
     document.addEventListener('visibilitychange', syncGarage);
     syncMotion();
-    motion.addEventListener('click', () => {paused = !paused; syncMotion();});
+    motion.addEventListener('click', () => {
+      if (needsPlay) {
+        needsPlay = false;
+        paused = false;
+        if (video.error) video.load();
+      } else {
+        paused = !paused;
+      }
+      syncMotion();
+    });
     replay.addEventListener('click', () => {elapsed = 0; sparks.length = 0; video.currentTime = 0; syncGarage();});
     reduced.addEventListener('change', syncMotion);
   }

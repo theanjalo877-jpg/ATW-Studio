@@ -9,8 +9,8 @@ import streamlit as st
 ASSETS = Path(__file__).with_name("dist")
 
 
-@lru_cache(maxsize=1)
-def portfolio_html():
+@lru_cache(maxsize=2)
+def portfolio_html(mobile=False):
     page = (ASSETS / "index.html").read_text(encoding="utf-8")
     styles = (ASSETS / "studio.css").read_text(encoding="utf-8")
     script = (ASSETS / "studio.js").read_text(encoding="utf-8")
@@ -23,7 +23,8 @@ def portfolio_html():
         return f'"data:image/webp;base64,{encoded}"'
 
     page = re.sub(r'"([a-z0-9-]+\.webp)"', embed_image, page)
-    video = b64encode((ASSETS / "depot-intro.mp4").read_bytes()).decode("ascii")
+    video_name = "depot-mobile.mp4" if mobile else "depot-intro.mp4"
+    video = b64encode((ASSETS / video_name).read_bytes()).decode("ascii")
     page = page.replace('src="depot-intro.mp4"', f'src="data:video/mp4;base64,{video}"')
     return page.replace("</body>", f"<script>{script}</script></body>")
 
@@ -36,4 +37,6 @@ st.html("""
 iframe[title="ATW Studio portfolio"]{display:block;width:100%;height:100dvh!important;border:0}
 </style>
 """)
-st.iframe(portfolio_html(), height=850, alt="ATW Studio portfolio")
+user_agent = st.context.headers.get("User-Agent", "")
+mobile = bool(re.search(r"Android|iPhone|iPad|iPod|Mobile", user_agent, re.I))
+st.iframe(portfolio_html(mobile), height=850, alt="ATW Studio portfolio")

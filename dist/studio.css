@@ -95,9 +95,10 @@ footer .eyebrow,footer small{color:#b7c0ae}
 @media(max-width:580px){
  .top{flex-wrap:wrap;padding:14px 16px;gap:11px}.top nav{order:3;width:100%;justify-content:space-between;font-size:.83rem;gap:8px}.top-contact{padding:5px 11px}
  .hero{padding-bottom:20px}.stage{min-height:530px;height:70svh;max-height:600px}
- .stage-picture{object-position:56% center}
+ .stage-picture{top:30%;height:auto;aspect-ratio:16/9;object-position:center}
+ .stage{background:#0c1218}
  .stage-grade{background:linear-gradient(90deg,#070c11de,#0c131967 72%),linear-gradient(0deg,#070c12e6,transparent 38%)}
- .name{top:43%;left:7%;font-size:clamp(32px,10cqw,60px)}.monogram{left:7%;font-size:clamp(83px,25cqw,146px)}
+ .name{top:18%;left:7%;font-size:clamp(32px,9cqw,60px)}.monogram{top:18%;left:7%;font-size:clamp(83px,25cqw,146px)}
  .hero-bottom{padding:17px 13px}.hero-copy p{font-size:.91rem}.hero-copy p+p{font-size:.78rem}.replay{padding:7px 8px;font-size:.75rem}
  .section-heading{display:block}.text-link{display:inline-block;margin:12px 0 0}.project-grid,.profile,footer{grid-template-columns:1fr}
  .study-list a{grid-template-columns:1fr}.timeline article{grid-template-columns:1fr;gap:4px}.timeline article>p{margin-bottom:0}
@@ -173,3 +174,5 @@ section[id],footer[id]{scroll-margin-top:18px}
 .copy-status{margin:5px 0;min-height:1.55em;font-size:.92rem}
 .stage-video{opacity:0}
 .stage-video.is-playing{opacity:1}
+
+@media(max-width:580px){.hero-bottom{flex-wrap:wrap;gap:12px}.hero-actions{justify-content:flex-start}.hero-actions a,.hero-actions button{min-height:44px;display:inline-flex;align-items:center}.hero-actions button[hidden]{display:none}}
