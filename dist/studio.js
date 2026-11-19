@@ -4,16 +4,9 @@ const mark = stage.querySelector('.monogram');
 const letter = mark.querySelector('.final-letter');
 const baseline = mark.querySelector('.baseline');
 const lean = stage.querySelector('.lean');
-const panel = stage.querySelector('.power-screen');
-const frames = new Map([...stage.querySelectorAll('[data-pose]')].map(image => [image.dataset.pose, image]));
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 const context = document.createElement('canvas').getContext('2d');
-const poses = ['step-a', 'step-b', 'step-c', 'step-d'];
-const ease = value => value * value * (3 - 2 * value);
-let animation = 0;
-let currentPose;
-let ready = false;
-let geometry;
+let transition;
 
 function length(name, value) {
   stage.style.setProperty(name, value + 'px');
@@ -21,7 +14,6 @@ function length(name, value) {
 
 function measure() {
   const leanWidth = lean.offsetWidth;
-  const imageHeight = lean.offsetHeight;
   const floor = stage.clientHeight - parseFloat(getComputedStyle(stage).getPropertyValue('--floor'));
   const font = getComputedStyle(mark);
   const size = parseFloat(font.fontSize);
@@ -29,89 +21,32 @@ function measure() {
   const glyph = context.measureText('W');
   const edge = mark.offsetLeft + letter.offsetLeft + glyph.actualBoundingBoxRight - size * .075;
   const leanX = Math.max(0, Math.min(edge - leanWidth * .045, stage.clientWidth - leanWidth));
-  const armY = floor - imageHeight * .72;
+  const armY = floor - lean.offsetHeight * .72;
   length('--lean-x', leanX);
   length('--mark-y', armY + glyph.actualBoundingBoxAscent - baseline.offsetTop + mark.offsetHeight / 2);
-  const screen = panel.offsetLeft + panel.offsetWidth - 19;
-  const press = frames.get('press');
-  const pressX = screen - press.offsetWidth * .3056;
-  const fingerY = floor - imageHeight * .7144;
-  length('--key-y', fingerY - panel.offsetTop);
-  geometry = { leanX, leanWidth, pressX, startX: pressX + Math.min(96, stage.clientWidth * .12) };
-  if (!stage.classList.contains('playing') || stage.dataset.phase === 'finish') shadow(leanX, leanWidth, .69);
+  length('--shadow-x', leanX + leanWidth * .69);
+  length('--shadow-width', leanWidth * .48);
 }
 
-function shadow(x, width, foot = .62) {
-  length('--shadow-x', x + width * foot);
-  length('--shadow-width', width * .48);
-}
-
-function render(phase, pose, x, approach = 1) {
-  stage.dataset.phase = phase;
-  if (currentPose !== pose) {
-    frames.get(currentPose)?.classList.remove('active');
-    frames.get(pose)?.classList.add('active');
-    currentPose = pose;
-  }
-  if (pose) {
-    length('--actor-x', x);
-    length('--approach-depth', (1 - approach) * 17);
-    stage.style.setProperty('--approach-scale', 1 + (1 - approach) * .045);
-    shadow(x, frames.get(pose).offsetWidth);
-  } else {
-    shadow(geometry.leanX, geometry.leanWidth, .69);
-  }
-}
-
-function playIntro() {
-  if (!ready || reduced.matches) return;
-  cancelAnimationFrame(animation);
-  stage.classList.add('playing');
-  const started = performance.now();
-  function tick(now) {
-    const ms = now - started;
-    const { startX, pressX, leanX } = geometry;
-    if (ms < 1550) {
-      const progress = ease(Math.min(ms / 1470, 1));
-      const cadence = Math.min(5, Math.floor(ms / 235));
-      const pose = ms >= 1390 ? 'stop' : poses[cadence % poses.length];
-      render('walk', pose, startX + (pressX - startX) * progress, progress);
-    } else if (ms < 2180) {
-      render('arrive', 'stop', pressX);
-    } else if (ms < 2650) {
-      render('press', 'press', pressX);
-    } else if (ms < 5820) {
-      render('reveal', ms < 3200 ? 'press' : 'stop', pressX);
-    } else if (ms < 6430) {
-      const progress = ease((ms - 5820) / 610);
-      render('settle', 'stop', pressX + (leanX - pressX) * progress);
-    } else {
-      render('finish');
-      return;
-    }
-    animation = requestAnimationFrame(tick);
-  }
-  animation = requestAnimationFrame(tick);
+function reveal() {
+  clearTimeout(transition);
+  stage.dataset.phase = 'reveal';
+  replay.textContent = 'Replay intro';
+  transition = setTimeout(() => {
+    stage.dataset.phase = 'finish';
+  }, 1850);
 }
 
 function syncMotion() {
-  replay.hidden = reduced.matches || !ready;
-  if (!reduced.matches) return;
-  cancelAnimationFrame(animation);
-  stage.classList.remove('playing');
+  clearTimeout(transition);
   delete stage.dataset.phase;
-  if (geometry) render('static');
+  replay.hidden = reduced.matches;
+  replay.textContent = 'Light up name';
 }
 
 new ResizeObserver(measure).observe(stage);
 document.fonts.ready.then(measure);
-replay.addEventListener('click', playIntro);
+lean.addEventListener('load', measure);
+replay.addEventListener('click', reveal);
 reduced.addEventListener('change', syncMotion);
 syncMotion();
-
-Promise.allSettled([lean, ...frames.values()].map(image => image.decode())).then(results => {
-  ready = results.every(result => result.status === 'fulfilled');
-  measure();
-  syncMotion();
-  playIntro();
-});
