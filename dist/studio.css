@@ -44,7 +44,10 @@ a:focus-visible,button:focus-visible{outline:3px solid #c7892c;outline-offset:4p
 .performer{position:absolute;inset:0;pointer-events:none}
 .performer img{position:absolute;bottom:var(--floor);width:auto;height:var(--figure-height);object-fit:contain;opacity:0}
 .performer .lean{left:var(--lean-x,72%)}
-.performer .walk-frame{left:var(--actor-x,75%);transition:opacity 75ms linear}
+.performer .walk-frame{left:var(--actor-x,75%);
+ transform:translateY(var(--approach-depth,0px)) scale(var(--approach-scale,1));
+ transform-origin:50% 100%;transition:opacity 50ms linear}
+[data-phase=walk] .foot-shadow{translate:0 var(--approach-depth,0px)}
 .performer .walk-frame.active{opacity:1}
 .stage:not(.playing) .lean,[data-phase=finish] .lean{opacity:1}
 [data-phase=finish] .lean{transition:opacity .28s}

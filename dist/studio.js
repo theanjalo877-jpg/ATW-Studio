@@ -34,10 +34,10 @@ function measure() {
   length('--mark-y', armY + glyph.actualBoundingBoxAscent - baseline.offsetTop + mark.offsetHeight / 2);
   const screen = panel.offsetLeft + panel.offsetWidth - 19;
   const press = frames.get('press');
-  const pressX = screen - press.offsetWidth * .1815;
-  const fingerY = floor - imageHeight * .7715;
+  const pressX = screen - press.offsetWidth * .3056;
+  const fingerY = floor - imageHeight * .7144;
   length('--key-y', fingerY - panel.offsetTop);
-  geometry = { leanX, leanWidth, pressX, startX: pressX + Math.min(128, stage.clientWidth * .16) };
+  geometry = { leanX, leanWidth, pressX, startX: pressX + Math.min(96, stage.clientWidth * .12) };
   if (!stage.classList.contains('playing') || stage.dataset.phase === 'finish') shadow(leanX, leanWidth, .69);
 }
 
@@ -46,7 +46,7 @@ function shadow(x, width, foot = .62) {
   length('--shadow-width', width * .48);
 }
 
-function render(phase, pose, x) {
+function render(phase, pose, x, approach = 1) {
   stage.dataset.phase = phase;
   if (currentPose !== pose) {
     frames.get(currentPose)?.classList.remove('active');
@@ -55,6 +55,8 @@ function render(phase, pose, x) {
   }
   if (pose) {
     length('--actor-x', x);
+    length('--approach-depth', (1 - approach) * 17);
+    stage.style.setProperty('--approach-scale', 1 + (1 - approach) * .045);
     shadow(x, frames.get(pose).offsetWidth);
   } else {
     shadow(geometry.leanX, geometry.leanWidth, .69);
@@ -69,18 +71,19 @@ function playIntro() {
   function tick(now) {
     const ms = now - started;
     const { startX, pressX, leanX } = geometry;
-    if (ms < 2050) {
-      const progress = Math.min(ms / 1950, 1);
-      const cadence = Math.min(7, Math.floor(ms / 238));
-      render('walk', poses[cadence % poses.length], startX + (pressX - startX) * progress);
-    } else if (ms < 2670) {
+    if (ms < 1550) {
+      const progress = ease(Math.min(ms / 1470, 1));
+      const cadence = Math.min(5, Math.floor(ms / 235));
+      const pose = ms >= 1390 ? 'stop' : poses[cadence % poses.length];
+      render('walk', pose, startX + (pressX - startX) * progress, progress);
+    } else if (ms < 2180) {
       render('arrive', 'stop', pressX);
-    } else if (ms < 3250) {
+    } else if (ms < 2650) {
       render('press', 'press', pressX);
-    } else if (ms < 6420) {
-      render('reveal', ms < 3850 ? 'press' : 'stop', pressX);
-    } else if (ms < 7010) {
-      const progress = ease((ms - 6420) / 590);
+    } else if (ms < 5820) {
+      render('reveal', ms < 3200 ? 'press' : 'stop', pressX);
+    } else if (ms < 6430) {
+      const progress = ease((ms - 5820) / 610);
       render('settle', 'stop', pressX + (leanX - pressX) * progress);
     } else {
       render('finish');
