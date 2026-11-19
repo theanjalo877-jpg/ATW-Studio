@@ -8,6 +8,7 @@ const canAnimate = () => !paused && !reduced.matches;
 {
   const canvas = stage.querySelector('.garage-effects');
   const video = stage.querySelector('.stage-video');
+  const lightBed = stage.querySelector('.depot-light-bed');
   const pen = canvas.getContext('2d');
   if (pen) {
     const mark = stage.querySelector('.monogram');
@@ -33,6 +34,14 @@ const canAnimate = () => !paused && !reduced.matches;
     function refreshSize() {
       view = canvas.getBoundingClientRect();
       ({width, height} = view);
+      // Match the video’s cover crop so the glow stays on the fixture.
+      const pictureWidth = Math.max(width, height * 16 / 9);
+      const pictureHeight = pictureWidth * 9 / 16;
+      const horizontalAnchor = parseFloat(getComputedStyle(video).objectPosition) / 100;
+      lightBed.style.width = pictureWidth + 'px';
+      lightBed.style.height = pictureHeight + 'px';
+      lightBed.style.left = (width - pictureWidth) * horizontalAnchor + 'px';
+      lightBed.style.top = (height - pictureHeight) / 2 + 'px';
       const resolution = Math.min(devicePixelRatio || 1, 2);
       canvas.width = Math.round(width * resolution);
       canvas.height = Math.round(height * resolution);

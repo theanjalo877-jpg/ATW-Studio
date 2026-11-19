@@ -19,6 +19,12 @@ a:focus-visible,button:focus-visible{outline:3px solid #c7892c;outline-offset:4p
  max-width:1570px;margin:auto;border:1px solid #4e5350;border-radius:21px;background:#151c21;color:#f5ead3}
 .stage-picture,.stage-grade,.stage-beam{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .stage-picture{object-fit:cover;object-position:60% center}
+.depot-light-bed{position:absolute;pointer-events:none;mix-blend-mode:screen;opacity:.58;
+ background:radial-gradient(ellipse 3.2% 4.8% at 79.6% 18.2%,#ffd6a657, #ff9a3830 34%,transparent 100%),
+ radial-gradient(ellipse 10% 17% at 80% 21%,#ff9e3c21,transparent 100%),
+ radial-gradient(ellipse 7% 9% at 78% 68%,#ffad5120,transparent 100%)}
+.garage-live .depot-light-bed{animation:depot-lamp 9s ease-in-out infinite}
+@keyframes depot-lamp{0%,100%{opacity:.62}38%{opacity:.82}64%{opacity:.56}72%{opacity:.72}}
 .stage-grade{background:linear-gradient(90deg,#070c11df,#0c131977 39%,#08101505 82%),linear-gradient(0deg,#070c12e6,transparent 38%)}
 .stage-beam{opacity:0;mix-blend-mode:screen;background:linear-gradient(104deg,transparent 25%,#e8bf771f 43%,#ffdb8d6b 49%,#e8bf7714 55%,transparent 68%);transform:translateX(-42%)}
 .stage-titles{position:absolute;inset:0;pointer-events:none}
