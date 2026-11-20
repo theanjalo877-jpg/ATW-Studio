@@ -68,8 +68,23 @@ st.html("""
 <style>
 [data-testid="stMainBlockContainer"]{max-width:none;padding:0}
 #MainMenu,[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stFooter"]{display:none}
-iframe[title="ATW Studio portfolio"]{display:block;width:100%;height:100dvh!important;border:0}
+html:has(.st-key-portfolio_viewport iframe),
+body:has(.st-key-portfolio_viewport iframe),
+[data-testid="stMain"]:has(.st-key-portfolio_viewport iframe){
+    overflow:hidden;
+    overscroll-behavior:none;
+}
+.st-key-portfolio_viewport iframe{
+    position:fixed;
+    inset:0;
+    display:block;
+    width:100%!important;
+    height:100vh!important;
+    height:100dvh!important;
+    border:0;
+}
 </style>
 """)
 page = emirati_html() if st.query_params.get("experience") == "emirati" else portfolio_html(mobile=bool(re.search(r"Android|iPhone|iPad|iPod|Mobile", st.context.headers.get("User-Agent", ""), re.I)))
-st.iframe(page, height=850, alt="ATW Studio portfolio")
+with st.container(key="portfolio_viewport"):
+    st.iframe(page, height=850, alt="ATW Studio portfolio")
