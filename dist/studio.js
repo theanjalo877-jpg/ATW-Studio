@@ -7,6 +7,7 @@ const canAnimate = () => !paused && !reduced.matches;
 
 {
   const video = stage.querySelector('.stage-video');
+  const nameParts = [...stage.querySelectorAll('.office-name span')];
   const dayEnds = 2.48;
   // The fixture flickers once before settling. These times match the encoded frames.
   const lampOn = 3.708;
@@ -19,6 +20,12 @@ const canAnimate = () => !paused && !reduced.matches;
     const time = video.currentTime;
     stage.dataset.phase = reduced.matches || video.error ? 'night'
       : time >= dayReturn ? 'dusk' : time >= lampOn ? 'night' : time >= dayEnds ? 'dusk' : 'day';
+    if (stage.dataset.phase === 'day') {
+      nameParts.forEach((part, index) => {
+        const progress = Math.max(0, Math.min(1, (time - .1 - index * .48) / .68));
+        part.style.setProperty('--name-reveal', (progress * progress * (3 - 2 * progress)).toFixed(3));
+      });
+    }
     const next = lampLevels.findIndex(([at]) => at > time);
     let level = 1;
     if (!reduced.matches && !video.error && next > 0) {
