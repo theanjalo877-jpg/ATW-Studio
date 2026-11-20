@@ -28,7 +28,23 @@ def portfolio_html(mobile=False):
     video_name = "depot-mobile.mp4" if mobile else "depot-intro.mp4"
     video = b64encode((ASSETS / video_name).read_bytes()).decode("ascii")
     page = page.replace('src="depot-intro.mp4"', f'src="data:video/mp4;base64,{video}"')
-    return page.replace("</body>", f"<script>{script}</script></body>")
+    watch_page = (ASSETS / "emirati" / "index.html").read_text(encoding="utf-8")
+    three, model, *_ = re.findall(r"<script>(.*?)</script>", watch_page, flags=re.S)
+    preview_script = f"""
+<script type="text/plain" id="watch-renderer">{three}
+{model}</script>
+<script>
+const watchPreview = document.querySelector('.collection-watch');
+const watchLoader = new IntersectionObserver(([entry]) => {{
+  if (!entry.isIntersecting) return;
+  watchLoader.disconnect();
+  const program = document.createElement('script');
+  program.textContent = document.getElementById('watch-renderer').textContent;
+  document.body.append(program);
+}});
+watchLoader.observe(watchPreview);
+</script>"""
+    return page.replace("</body>", f"<script>{script}</script>{preview_script}</body>")
 
 
 def watch_frame_url(path):
@@ -39,6 +55,10 @@ def watch_frame_url(path):
 @lru_cache(maxsize=1)
 def emirati_html():
     page = (ASSETS / "emirati" / "index.html").read_text(encoding="utf-8")
+    for name in ("athar-together.webp", "athar-sand.webp"):
+        encoded = b64encode((ASSETS / "emirati" / name).read_bytes()).decode("ascii")
+        page = page.replace(f'src="{name}"', f'src="data:image/webp;base64,{encoded}"')
+    page = page.replace('<script src="sand.js"></script>', f'<script>{(ASSETS / "emirati" / "sand.js").read_text(encoding="utf-8")}</script>')
     return page.replace('href="../"', 'href="/" target="_blank" rel="noopener noreferrer"')
 
 
