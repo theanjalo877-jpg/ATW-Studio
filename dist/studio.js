@@ -253,17 +253,19 @@ for (const feature of document.querySelectorAll('.qame-film')) {
   let inView = false, playIntent = !reduced.matches;
 
   function syncFilm() {
-    if (inView && playIntent && !document.hidden) film.play().catch(() => {});
+    if (inView && playIntent && !document.hidden && !film.ended) film.play().catch(() => {});
     else film.pause();
   }
   function syncButtons() {
-    play.textContent = film.paused ? 'Play film' : 'Pause film';
-    play.setAttribute('aria-label', (film.paused ? 'Play ' : 'Pause ') + name);
+    const action = film.ended ? 'Replay' : film.paused ? 'Play' : 'Pause';
+    play.textContent = action + ' film';
+    play.setAttribute('aria-label', action + ' ' + name);
     sound.textContent = film.muted ? 'Unmute' : 'Mute';
     sound.setAttribute('aria-label', sound.textContent + ' ' + name);
   }
   play.addEventListener('click', () => {
     playIntent = film.paused;
+    if (film.ended) film.currentTime = 0;
     syncFilm();
   });
   sound.addEventListener('click', () => {
@@ -278,7 +280,7 @@ for (const feature of document.querySelectorAll('.qame-film')) {
       }
     }
   });
-  for (const event of ['play','pause','volumechange']) film.addEventListener(event, syncButtons);
+  for (const event of ['play','pause','ended','volumechange']) film.addEventListener(event, syncButtons);
   new IntersectionObserver(([entry]) => {
     inView = entry.isIntersecting;
     syncFilm();
