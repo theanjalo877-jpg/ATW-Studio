@@ -6,166 +6,113 @@ let paused = false;
 const canAnimate = () => !paused && !reduced.matches;
 
 {
-  const canvas = stage.querySelector('.garage-effects');
   const video = stage.querySelector('.stage-video');
-  const lightBed = stage.querySelector('.depot-light-bed');
-  const pen = canvas.getContext('2d');
-  if (pen) {
-    const mark = stage.querySelector('.monogram');
-    const title = stage.querySelector('.name');
-    function splitText(container) {
-      for (const node of [...container.childNodes]) {
-        if (node.nodeType !== Node.TEXT_NODE) continue;
-        node.replaceWith(...Array.from(node.textContent, char => {
-          const letter = document.createElement('span');
-          letter.className = 'weld-letter';
-          letter.textContent = char;
-          return letter;
-        }));
-      }
-      return [...container.querySelectorAll('.weld-letter')];
-    }
-    title.querySelectorAll(':scope > span').forEach(splitText);
-    const names = [...title.querySelectorAll('.weld-letter')];
-    const initials = splitText(mark);
-    const sparks = [];
-    let view, width, height, ticket, stalled, elapsed = 0, previous = 0, visible = false;
-    let needsPlay = false;
+  const dayEnds = 2.48;
+  // The fixture flickers once before settling. These times match the encoded frames.
+  const lampOn = 3.708;
+  const lampLevels = [[lampOn,.15],[3.792,.90],[3.833,1],[3.958,.22],[4.083,1]];
+  let visible = false, needsPlay = false, frame = 0;
+  let stalled;
 
-    function refreshSize() {
-      view = canvas.getBoundingClientRect();
-      ({width, height} = view);
-      // Match the video’s cover crop so the glow stays on the fixture.
-      const videoHeight = video.clientHeight;
-      const pictureWidth = Math.max(width, videoHeight * 16 / 9);
-      const pictureHeight = pictureWidth * 9 / 16;
-      const horizontalAnchor = parseFloat(getComputedStyle(video).objectPosition) / 100;
-      lightBed.style.width = pictureWidth + 'px';
-      lightBed.style.height = pictureHeight + 'px';
-      lightBed.style.left = (width - pictureWidth) * horizontalAnchor + 'px';
-      lightBed.style.top = video.offsetTop + (videoHeight - pictureHeight) / 2 + 'px';
-      const resolution = Math.min(devicePixelRatio || 1, 2);
-      canvas.width = Math.round(width * resolution);
-      canvas.height = Math.round(height * resolution);
-      pen.setTransform(resolution, 0, 0, resolution, 0, 0);
+  function paintPhase() {
+    const time = video.currentTime;
+    stage.dataset.phase = reduced.matches || video.error ? 'night'
+      : time >= lampOn ? 'night' : time >= dayEnds ? 'dusk' : 'day';
+    const next = lampLevels.findIndex(([at]) => at > time);
+    let level = 1;
+    if (!reduced.matches && !video.error && next > 0) {
+      const [from, dim] = lampLevels[next - 1], [to, bright] = lampLevels[next];
+      level = dim + (bright - dim) * (time - from) / (to - from);
     }
-
-    function weld() {
-      const time = elapsed;
-      const showName = time < 7.4;
-      stage.dataset.title = showName ? 'name' : 'mark';
-      const letters = showName ? names : initials;
-      const progress = (showName ? time : time - 7.4) / (showName ? .146 : .52);
-      const active = letters[Math.floor(progress)];
-      letters.forEach((letter, index) => {
-        letter.style.setProperty('--weld', Math.max(0, Math.min(1, progress - index)));
-        letter.classList.toggle('hot', letter === active);
-      });
-      if (!active || !active.textContent.trim() || sparks.length > 95) return;
-      const bounds = active.getBoundingClientRect();
-      const x = bounds.left - view.left + bounds.width * (progress % 1);
-      const y = bounds.top - view.top + bounds.height * (.43 + Math.sin(progress * 7) * .16);
-      for (let index = 0; index < 3; index++) {
-        sparks.push({x, y, dx:(Math.random() - .48) * 460, dy:-60 - Math.random() * 240, life:.16 + Math.random() * .38});
-      }
-      pen.fillStyle = '#ffeed0';
-      pen.shadowColor = '#ff9933';
-      pen.shadowBlur = 15;
-      pen.fillRect(x - 1, y - 1, 3, 3);
-      pen.shadowBlur = 0;
-    }
-
-    function frame(now) {
-      const dt = previous ? Math.min((now - previous) / 1000, .05) : 0;
-      previous = now;
-      elapsed += dt;
-      pen.clearRect(0, 0, width, height);
-      weld();
-      for (let index = sparks.length - 1; index >= 0; index--) {
-        const spark = sparks[index];
-        spark.life -= dt;
-        if (spark.life <= 0) { sparks.splice(index, 1); continue; }
-        spark.dy += dt * 780;
-        spark.x += spark.dx * dt;
-        spark.y += spark.dy * dt;
-        pen.strokeStyle = 'rgba(255,184,75,' + Math.min(1, spark.life * 3) + ')';
-        pen.beginPath();
-        pen.moveTo(spark.x, spark.y);
-        pen.lineTo(spark.x - spark.dx * .015, spark.y - spark.dy * .015);
-        pen.stroke();
-      }
-      if (elapsed < 10.5 || sparks.length) ticket = requestAnimationFrame(frame);
-    }
-
-    function showPlayButton() {
-      needsPlay = true;
-      motion.textContent = 'Play intro';
-      replay.disabled = true;
-    }
-
-    function syncGarage() {
-      cancelAnimationFrame(ticket);
-      previous = 0;
-      if (!canAnimate() || !visible || document.hidden) {
-        clearTimeout(stalled);
-        video.pause();
-        if (reduced.matches) video.classList.remove('is-playing');
-        stage.classList.remove('garage-live');
-        pen.clearRect(0, 0, width, height);
-      } else {
-        video.muted = true;
-        video.play().catch(error => {
-          if (error.name !== 'AbortError' && canAnimate() && visible && !document.hidden) showPlayButton();
-        });
-        stage.classList.add('garage-live');
-        ticket = requestAnimationFrame(frame);
-      }
-    }
-
-    new ResizeObserver(refreshSize).observe(canvas);
-    new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
-      refreshSize();
-      syncGarage();
-    }).observe(stage);
-    function syncMotion() {
-      motion.hidden = replay.hidden = reduced.matches;
-      motion.textContent = needsPlay ? 'Play intro' : paused ? 'Resume motion' : 'Pause motion';
-      replay.disabled = paused || needsPlay;
-      document.body.classList.toggle('motion-paused', !canAnimate());
-      syncGarage();
-      document.dispatchEvent(new Event('studio-motion'));
-    }
-    video.addEventListener('playing', () => {
-      clearTimeout(stalled);
-      needsPlay = false;
-      video.classList.add('is-playing');
-      motion.textContent = 'Pause motion';
-      replay.disabled = false;
-    });
-    video.addEventListener('waiting', () => {
-      clearTimeout(stalled);
-      if (canAnimate() && visible) stalled = setTimeout(showPlayButton, 5000);
-    });
-    video.addEventListener('error', () => {
-      video.classList.remove('is-playing');
-      showPlayButton();
-    });
-    document.addEventListener('visibilitychange', syncGarage);
-    syncMotion();
-    motion.addEventListener('click', () => {
-      if (needsPlay) {
-        needsPlay = false;
-        paused = false;
-        if (video.error) video.load();
-      } else {
-        paused = !paused;
-      }
-      syncMotion();
-    });
-    replay.addEventListener('click', () => {elapsed = 0; sparks.length = 0; video.currentTime = 0; syncGarage();});
-    reduced.addEventListener('change', syncMotion);
+    stage.style.setProperty('--lamp-level', level.toFixed(3));
   }
+
+  // Read media time so buffering and pause cannot advance the reveal.
+  function trackPlayback() {
+    paintPhase();
+    frame = requestAnimationFrame(trackPlayback);
+  }
+
+  function updateControls() {
+    motion.hidden = replay.hidden = reduced.matches;
+    motion.textContent = needsPlay || video.ended ? 'Play intro' : paused ? 'Resume motion' : 'Pause motion';
+    replay.disabled = needsPlay;
+  }
+
+  function syncIntro() {
+    clearTimeout(stalled);
+    cancelAnimationFrame(frame);
+    if (!canAnimate() || !visible || document.hidden || video.ended || needsPlay) {
+      video.pause();
+      paintPhase();
+      return;
+    }
+    video.play().catch(error => {
+      if (error.name === 'AbortError') return;
+      cancelAnimationFrame(frame);
+      needsPlay = true;
+      updateControls();
+    });
+    trackPlayback();
+  }
+
+  function syncMotion() {
+    document.body.classList.toggle('motion-paused', !canAnimate());
+    if (reduced.matches) video.classList.remove('is-playing');
+    updateControls();
+    syncIntro();
+    document.dispatchEvent(new Event('studio-motion'));
+  }
+
+  function restart() {
+    if (video.error) video.load();
+    video.currentTime = 0;
+    paused = needsPlay = false;
+    syncMotion();
+  }
+
+  video.addEventListener('playing', () => {
+    clearTimeout(stalled);
+    needsPlay = false;
+    video.classList.add('is-playing');
+    updateControls();
+  });
+  video.addEventListener("waiting", () => {
+    clearTimeout(stalled);
+    if (!canAnimate() || !visible || document.hidden) return;
+    stalled = setTimeout(() => {
+      video.pause();
+      cancelAnimationFrame(frame);
+      needsPlay = true;
+      updateControls();
+    }, 5000);
+  });
+  video.addEventListener('ended', () => {
+    cancelAnimationFrame(frame);
+    paintPhase();
+    updateControls();
+  });
+  video.addEventListener('error', () => {
+    needsPlay = true;
+    video.classList.remove('is-playing');
+    cancelAnimationFrame(frame);
+    paintPhase();
+    updateControls();
+  });
+  new IntersectionObserver(([entry]) => {
+    visible = entry.isIntersecting;
+    syncIntro();
+  }).observe(stage);
+  document.addEventListener('visibilitychange', syncIntro);
+  motion.addEventListener('click', () => {
+    if (video.ended || video.error) return restart();
+    if (needsPlay) paused = needsPlay = false;
+    else paused = !paused;
+    syncMotion();
+  });
+  replay.addEventListener('click', restart);
+  reduced.addEventListener('change', syncMotion);
+  syncMotion();
 }
 
 const projectObserver = new IntersectionObserver(entries => {
