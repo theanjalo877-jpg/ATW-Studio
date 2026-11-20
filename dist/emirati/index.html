@@ -299,7 +299,10 @@ interest.addEventListener('submit', event => {
   },{passive:true});
   function step(now){
     frame=0;
-    if(document.hidden||reduce.matches||contextLost)return;
+    if(document.hidden||reduce.matches||contextLost){
+      if(active>=0)delete sections[active].querySelector('.stage').dataset.gpu;
+      active=-1;return;
+    }
     frame=requestAnimationFrame(step);
     const index=sections.findIndex(s=>{const r=s.getBoundingClientRect();return r.top<innerHeight*.72&&r.bottom>innerHeight*.25;});
     if(index===-1){last=0;return;}
