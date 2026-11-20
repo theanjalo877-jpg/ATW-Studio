@@ -23,4 +23,4 @@ python -m http.server 8000 --directory dist
 
 Open `http://localhost:8000/emirati/` for the launch, or open the portfolio root and choose **Explore Emirati**. The Streamlit entry point also supports `/?experience=emirati`. The private waitlist is a fictional demo that only saves interest locally in the browser.
 
-The WebP frame sequences were rendered from one Blender model. The source is `artwork/render_emirati.py`. The chapter folders contain separate orbit, macro and assembly sequences, each numbered from `000.webp`.
+The live watch scenes, styles, scripts and static fallback images are embedded in `dist/emirati/index.html`. The GPU renderer uses WebGL2 with a 4096px dial texture and adaptive resolution. Blender source for the static fallback is in `artwork/render_emirati.py`.

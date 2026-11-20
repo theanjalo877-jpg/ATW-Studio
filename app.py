@@ -2,7 +2,6 @@
 from base64 import b64encode
 from functools import lru_cache
 from pathlib import Path
-import json
 import re
 
 import streamlit as st
@@ -39,24 +38,8 @@ def watch_frame_url(path):
 
 @lru_cache(maxsize=1)
 def emirati_html():
-    directory = ASSETS / "emirati"
-    page = (directory / "index.html").read_text(encoding="utf-8")
-    styles = (directory / "style.css").read_text(encoding="utf-8")
-    page = page.replace('<link rel="stylesheet" href="style.css">', f"<style>{styles}</style>")
-    page = page.replace('href="../"', 'href="/" target="_blank" rel="noopener noreferrer"')
-    frames = {
-        file.relative_to(directory).as_posix(): watch_frame_url(file.relative_to(directory / "frames").as_posix())
-        for file in (directory / "frames").glob("*/*.webp")
-    }
-    for shot in ("orbit", "macro", "assembly"):
-        name = f"frames/{shot}/000.webp"
-        page = page.replace(f'src="{name}"', f'src="{frames[name]}"')
-    runtime = f"<script>window.emiratiFrames = {json.dumps(frames)};</script>"
-    for filename in ("lenis.min.js", "scroll.js"):
-        script = (directory / filename).read_text(encoding="utf-8")
-        page = page.replace(f'<script src="{filename}" defer></script>', "")
-        runtime += f"<script>{script}</script>"
-    return page.replace("</body>", runtime + "</body>")
+    page = (ASSETS / "emirati" / "index.html").read_text(encoding="utf-8")
+    return page.replace('href="../"', 'href="/" target="_blank" rel="noopener noreferrer"')
 
 
 st.set_page_config(page_title="ATW Studio · Anjalo Theophine Wilson", layout="wide")
