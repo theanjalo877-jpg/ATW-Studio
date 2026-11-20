@@ -25,8 +25,9 @@ def portfolio_html():
     page = re.sub(r'"([a-z0-9-]+\.webp)"', embed_image, page)
     page = page.replace('href="emirati/"', 'href="/?experience=emirati" target="_blank" rel="noopener noreferrer"')
     page = page.replace('"emirati/frames/orbit/000.webp"', '"' + watch_frame_url("orbit/000.webp") + '"')
-    video = b64encode((ASSETS / "office-intro.mp4").read_bytes()).decode("ascii")
-    page = page.replace('src="office-intro.mp4"', f'src="data:video/mp4;base64,{video}"')
+    for name in ("office-intro.mp4", "qame-film.mp4"):
+        video = b64encode((ASSETS / name).read_bytes()).decode("ascii")
+        page = page.replace(f'src="{name}"', f'src="data:video/mp4;base64,{video}"')
     watch_page = (ASSETS / "emirati" / "index.html").read_text(encoding="utf-8")
     three, model, *_ = re.findall(r"<script>(.*?)</script>", watch_page, flags=re.S)
     preview_script = f"""
