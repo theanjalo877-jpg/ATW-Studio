@@ -292,3 +292,14 @@ for (const feature of document.querySelectorAll('.qame-film')) {
   document.addEventListener('visibilitychange', syncFilm);
   syncButtons();
 }
+
+const qameStory = document.querySelector('.qame-story');
+if (qameStory && !reduced.matches) {
+  const storyObserver = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    qameStory.classList.add('qame-story-visible');
+    storyObserver.disconnect();
+  }, {threshold:.38});
+  qameStory.classList.add('qame-story-ready');
+  storyObserver.observe(qameStory);
+}
