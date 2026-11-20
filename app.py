@@ -63,7 +63,7 @@ st.set_page_config(page_title="ATW Studio · Anjalo Theophine Wilson", layout="w
 st.html("""
 <style>
 [data-testid="stMainBlockContainer"]{max-width:none;padding:0}
-[data-testid="stHeader"]{display:none}
+#MainMenu,[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stFooter"]{display:none}
 iframe[title="ATW Studio portfolio"]{display:block;width:100%;height:100dvh!important;border:0}
 </style>
 """)
