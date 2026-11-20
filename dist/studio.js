@@ -245,26 +245,22 @@ document.querySelectorAll('.project, .build-bay').forEach(project => projectObse
   });
 }
 
-{
-  const feature = document.querySelector('#qame');
+for (const feature of document.querySelectorAll('.qame-film')) {
   const film = feature.querySelector('video');
   const play = feature.querySelector('.qame-play');
   const sound = feature.querySelector('.qame-sound');
-  const shop = feature.querySelector('.qame-shop');
+  const name = feature.classList.contains('qame-store-film') ? 'QAMÉ storefront film' : 'QAMÉ film';
   let inView = false, playIntent = !reduced.matches;
 
   function syncFilm() {
     if (inView && playIntent && !document.hidden) film.play().catch(() => {});
     else film.pause();
   }
-  function label(button, text) {
-    button.textContent = text;
-    button.setAttribute('aria-label', text + ' QAMÉ film');
-  }
   function syncButtons() {
     play.textContent = film.paused ? 'Play film' : 'Pause film';
-    play.setAttribute('aria-label', film.paused ? 'Play QAMÉ film' : 'Pause QAMÉ film');
-    label(sound, film.muted ? 'Unmute' : 'Mute');
+    play.setAttribute('aria-label', (film.paused ? 'Play ' : 'Pause ') + name);
+    sound.textContent = film.muted ? 'Unmute' : 'Mute';
+    sound.setAttribute('aria-label', sound.textContent + ' ' + name);
   }
   play.addEventListener('click', () => {
     playIntent = film.paused;
@@ -272,9 +268,14 @@ document.querySelectorAll('.project, .build-bay').forEach(project => projectObse
   });
   sound.addEventListener('click', () => {
     film.muted = !film.muted;
-    if (!film.muted && film.paused) {
-      playIntent = true;
-      syncFilm();
+    if (!film.muted) {
+      for (const other of document.querySelectorAll('.qame-film video')) {
+        if (other !== film) other.muted = true;
+      }
+      if (film.paused) {
+        playIntent = true;
+        syncFilm();
+      }
     }
   });
   for (const event of ['play','pause','volumechange']) film.addEventListener(event, syncButtons);
@@ -282,9 +283,6 @@ document.querySelectorAll('.project, .build-bay').forEach(project => projectObse
     inView = entry.isIntersecting;
     syncFilm();
   }, {threshold:.3}).observe(film);
-  new IntersectionObserver(([entry]) => {
-    shop.classList.toggle('qame-active', entry.isIntersecting);
-  }, {threshold:.2}).observe(shop);
   reduced.addEventListener('change', () => {
     if (reduced.matches) playIntent = false;
     syncFilm();

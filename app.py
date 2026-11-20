@@ -10,7 +10,7 @@ ASSETS = Path(__file__).with_name("dist")
 
 
 @lru_cache(maxsize=2)
-def portfolio_html():
+def portfolio_html(mobile=False):
     page = (ASSETS / "index.html").read_text(encoding="utf-8")
     styles = (ASSETS / "studio.css").read_text(encoding="utf-8")
     script = (ASSETS / "studio.js").read_text(encoding="utf-8")
@@ -25,8 +25,9 @@ def portfolio_html():
     page = re.sub(r'"([a-z0-9-]+\.webp)"', embed_image, page)
     page = page.replace('href="emirati/"', 'href="/?experience=emirati" target="_blank" rel="noopener noreferrer"')
     page = page.replace('"emirati/frames/orbit/000.webp"', '"' + watch_frame_url("orbit/000.webp") + '"')
-    for name in ("office-intro.mp4", "qame-film.mp4"):
-        video = b64encode((ASSETS / name).read_bytes()).decode("ascii")
+    for name in ("office-intro.mp4", "qame-film.mp4", "qame-store-film.mp4"):
+        media_name = "qame-store-mobile.mp4" if mobile and name == "qame-store-film.mp4" else name
+        video = b64encode((ASSETS / media_name).read_bytes()).decode("ascii")
         page = page.replace(f'src="{name}"', f'src="data:video/mp4;base64,{video}"')
     watch_page = (ASSETS / "emirati" / "index.html").read_text(encoding="utf-8")
     three, model, *_ = re.findall(r"<script>(.*?)</script>", watch_page, flags=re.S)
@@ -70,5 +71,5 @@ st.html("""
 iframe[title="ATW Studio portfolio"]{display:block;width:100%;height:100dvh!important;border:0}
 </style>
 """)
-page = emirati_html() if st.query_params.get("experience") == "emirati" else portfolio_html()
+page = emirati_html() if st.query_params.get("experience") == "emirati" else portfolio_html(mobile=bool(re.search(r"Android|iPhone|iPad|iPod|Mobile", st.context.headers.get("User-Agent", ""), re.I)))
 st.iframe(page, height=850, alt="ATW Studio portfolio")
