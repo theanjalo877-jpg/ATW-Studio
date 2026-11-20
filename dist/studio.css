@@ -289,3 +289,46 @@ section[id],footer[id]{scroll-margin-top:18px}
  @keyframes qame-slow-credit{0%{opacity:0;filter:blur(6px);transform:translateY(.31em)}48%{opacity:.76}100%{opacity:1;filter:none;transform:none}}
  @keyframes qame-credit-rule{from{transform:scaleX(0);opacity:0}to{transform:scaleX(1);opacity:1}}
 }
+
+.qame-glass-title{position:relative;isolation:isolate;width:max-content;max-width:100%}
+.qame-glass-title h2{position:relative}
+.qame-condensation,.qame-glass-steam{position:absolute;inset:-.15em -.25em;pointer-events:none;opacity:0}
+.qame-condensation{
+ font-size:clamp(2.2rem,6vw,5rem);
+ background:
+  radial-gradient(1px 1.4px at 12% 52%,#fff5dd95 85%,transparent) 3px 0/22px 19px,
+  radial-gradient(.8px 1.2px at 38% 38%,#eddbbf80 85%,transparent) 0 4px/17px 23px,
+  radial-gradient(ellipse at 46% 53%,#cdbaa5b5 2%,#8e8178a8 34%,#4c4447b5 57%,transparent 76%);
+}
+.qame-glass-steam{overflow:hidden;mask-image:radial-gradient(ellipse,#000 35%,transparent 76%)}
+.qame-glass-steam i{position:absolute;inset:7% 12%;background:radial-gradient(ellipse at 42% 62%,#fff1d28c,transparent 61%);filter:blur(7px)}
+.qame-glass-steam i:nth-child(2){inset:4% 0 12% 21%;background:radial-gradient(ellipse at 54% 48%,#fff1df65,transparent 64%)}
+.qame-glass-steam i:nth-child(3){inset:18% 33% 0 0}
+@media(prefers-reduced-motion:no-preference){
+ .qame-story-ready .qame-glass-title h2{clip-path:inset(0 100% 0 0)}
+ .qame-story-visible .qame-glass-title h2{animation:qame-glass-clear 2.55s cubic-bezier(.29,.55,.24,1) both}
+ .qame-story-visible .qame-condensation{animation:qame-glass-fog 2.75s cubic-bezier(.29,.55,.24,1) both}
+ .qame-story-visible .qame-glass-steam{animation:qame-glass-breath 2.65s ease-in-out both}
+ .qame-story-visible .qame-glass-steam i{animation:qame-glass-drift 2.7s ease-out both}
+ .qame-story-visible .qame-glass-steam i:nth-child(2){animation-delay:.17s;animation-direction:reverse}
+ .qame-story-visible .qame-glass-steam i:nth-child(3){animation-delay:.36s}
+ .qame-story-visible .qame-origin span{animation-delay:1.52s}
+ .qame-story-visible .qame-origin span:nth-child(2){animation-delay:2.18s}
+ .qame-story-visible .qame-origin span:nth-child(3){animation-delay:2.84s}
+ .qame-story-visible .qame-anticipation span{animation-delay:3.82s}
+ .qame-story-visible .qame-anticipation strong{animation-delay:4.42s}
+ .qame-story-visible .qame-anticipation strong::after{animation-delay:5.42s}
+ @keyframes qame-glass-clear{
+  0%,31%{clip-path:polygon(0 0,0 0,0 38%,0 70%,0 100%,0 100%);filter:blur(8px)}
+  59%{clip-path:polygon(0 0,39% 0,47% 38%,42% 70%,29% 100%,0 100%);filter:blur(2px)}
+  100%{clip-path:polygon(0 0,100% 0,100% 38%,100% 70%,100% 100%,0 100%);filter:none}
+ }
+ @keyframes qame-glass-fog{
+  0%{opacity:0;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,0 70%,0 38%)}
+  26%,34%{opacity:.89;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,0 70%,0 38%)}
+  62%{opacity:.73;clip-path:polygon(40% 0,100% 0,100% 100%,31% 100%,47% 70%,49% 38%)}
+  100%{opacity:0;clip-path:polygon(100% 0,100% 0,100% 100%,100% 100%,100% 70%,100% 38%)}
+ }
+ @keyframes qame-glass-breath{0%,100%{opacity:0}30%{opacity:.9}73%{opacity:.28}}
+ @keyframes qame-glass-drift{from{transform:translate(-10%,29%) scale(.76)}to{transform:translate(21%,-37%) scale(1.26)}}
+}
