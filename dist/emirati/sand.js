@@ -26,8 +26,8 @@
     const scale = Math.max(width / photo.naturalWidth, height / photo.naturalHeight);
     const imageWidth = photo.naturalWidth * scale;
     imageHeight = photo.naturalHeight * scale;
-    originX = (width - imageWidth) / 2 + imageWidth * 0.534;
-    originY = (height - imageHeight) / 2 + imageHeight * 0.577;
+    originX = (width - imageWidth) / 2 + imageWidth * 0.532;
+    originY = (height - imageHeight) / 2 + imageHeight * 0.585;
   }
 
   function draw(now) {

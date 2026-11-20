@@ -55,9 +55,9 @@ def watch_frame_url(path):
 @lru_cache(maxsize=1)
 def emirati_html():
     page = (ASSETS / "emirati" / "index.html").read_text(encoding="utf-8")
-    name = "athar-sand.webp"
-    encoded = b64encode((ASSETS / "emirati" / name).read_bytes()).decode("ascii")
-    page = page.replace(f'src="{name}"', f'src="data:image/webp;base64,{encoded}"')
+    for name in ("athar-together.webp", "athar-sand.webp"):
+        encoded = b64encode((ASSETS / "emirati" / name).read_bytes()).decode("ascii")
+        page = page.replace(f'src="{name}"', f'src="data:image/webp;base64,{encoded}"')
     page = page.replace('<script src="sand.js"></script>', f'<script>{(ASSETS / "emirati" / "sand.js").read_text(encoding="utf-8")}</script>')
     return page.replace('href="../"', 'href="/" target="_blank" rel="noopener noreferrer"')
 

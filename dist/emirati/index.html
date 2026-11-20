@@ -94,11 +94,12 @@ header>a{display:inline-flex;gap:.6em;align-items:baseline;white-space:nowrap;le
 .lifestyle{max-width:1260px;margin:auto;padding:clamp(48px,8vw,120px) clamp(20px,5vw,76px)}
 .lifestyle-copy{margin-bottom:32px}
 .lifestyle h2{margin:.2em 0;font-size:clamp(2.5rem,6vw,6rem)}
+.lifestyle-scenes{display:grid;grid-template-columns:1fr 2fr;align-items:stretch;gap:clamp(10px,2vw,26px)}
 .lifestyle figure{position:relative;margin:0;overflow:hidden;border:1px solid #b59a644f}
-.lifestyle img{display:block;width:100%;height:auto}
+.lifestyle img{display:block;width:100%;height:100%;object-fit:cover}
 .lifestyle-sand canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .enquiry{display:inline-block;padding:.85em 1.3em;border:1px solid #b59a64;border-radius:1px;margin:1.2em 0;color:#ead3a0}
-@media(max-width:680px){.assembly-note{font-size:.7rem}}
+@media(max-width:680px){.lifestyle-scenes{grid-template-columns:1fr}.lifestyle img{height:auto}.assembly-note{font-size:.7rem}}
 </style>
 </head>
 <body>
@@ -116,7 +117,10 @@ header>a{display:inline-flex;gap:.6em;align-items:baseline;white-space:nowrap;le
 </section>
 <section class="lifestyle" aria-labelledby="lifestyle-title">
  <div class="lifestyle-copy"><p class="label">ATHAR in the Emirates</p><h2 id="lifestyle-title">A sense of belonging.</h2><p>A personal expression.</p></div>
- <figure class="lifestyle-sand"><img src="athar-sand.webp" alt="A relaxed hand wearing the rose-gold watch above the desert sand" loading="lazy" width="1536" height="1024"><canvas aria-hidden="true"></canvas></figure>
+ <div class="lifestyle-scenes">
+  <figure class="lifestyle-couple"><img src="athar-together.webp" alt="Two people holding hands at sunset, wearing dark and rose-gold watch concepts" loading="lazy" width="1087" height="1447"></figure>
+  <figure class="lifestyle-sand"><img src="athar-sand.webp" alt="A relaxed hand wearing the rose-gold watch above the desert sand" loading="lazy" width="1536" height="1024"><canvas aria-hidden="true"></canvas></figure>
+ </div>
 </section>
 <section class="edition" id="edition"><p class="label">The Emirati Collection · By ATW.</p><h2>ATHAR</h2><p class="note">An independent watch design concept by Anjalo Theophine Wilson.</p><a class="enquiry" href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=anjalotwilson%40gmail.com&amp;su=ATHAR%20concept%20enquiry" target="_blank" rel="noopener noreferrer">Enquire about the concept</a></section>
 </main>
