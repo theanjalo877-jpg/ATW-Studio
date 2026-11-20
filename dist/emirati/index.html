@@ -426,7 +426,6 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   scene.add(dust);
 
   if(preview){
-    const button=preview.parentElement.querySelector('.collection-toggle');
     const card=preview.parentElement.querySelector('.collection-glimpse');
     let paused=reduce.matches, visible=false, frame=0, last=0, elapsed=0;
     const fine=matchMedia('(hover: hover)');
@@ -443,7 +442,6 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       const poster=card.querySelector(".collection-placeholder");
       const rect=poster.getBoundingClientRect(), parent=preview.parentElement.getBoundingClientRect();
       Object.assign(preview.style,{left:(rect.left-parent.left)+"px",top:(rect.top-parent.top)+"px",width:rect.width+"px",height:rect.height+"px",right:"auto",bottom:"auto"});
-      Object.assign(button.style,{left:(rect.right-parent.left-button.offsetWidth-3)+"px",top:(rect.bottom-parent.top-button.offsetHeight-3)+"px",right:"auto",bottom:"auto"});
       const {clientWidth:w,clientHeight:h}=preview;
       if(!w||!h)return;
       camera.aspect=w/h;
@@ -461,22 +459,18 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     function sync(){
       cancelAnimationFrame(frame);
       last=0;
-      button.textContent=paused?'Play':'Pause';
-      button.setAttribute('aria-label',paused?'Play watch preview':'Pause watch preview');
       if(visible&&!paused&&!document.hidden&&!(fine.matches&&card.matches(':hover'))&&!card.matches(':focus-within')){
         frame=requestAnimationFrame(play);
       }
     }
     new ResizeObserver(fit).observe(card);
     new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;sync();}).observe(preview);
-    button.hidden=false;
-    button.addEventListener('click',()=>{paused=!paused;sync();});
     reduce.addEventListener('change',()=>{paused=reduce.matches;sync();});
     for(const event of ['pointerenter','pointerleave','focusin','focusout']){
       card.addEventListener(event,()=>requestAnimationFrame(sync));
     }
     document.addEventListener('visibilitychange',sync);
-    canvas.addEventListener('webglcontextlost',()=>{cancelAnimationFrame(frame);delete preview.dataset.ready;canvas.remove();button.hidden=true;},{once:true});
+    canvas.addEventListener('webglcontextlost',()=>{cancelAnimationFrame(frame);delete preview.dataset.ready;canvas.remove();},{once:true});
     fit();
     return;
   }
