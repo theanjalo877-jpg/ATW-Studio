@@ -10,6 +10,7 @@ const canAnimate = () => !paused && !reduced.matches;
   const dayEnds = 2.48;
   // The fixture flickers once before settling. These times match the encoded frames.
   const lampOn = 3.708;
+  const dayReturn = 6.25;
   const lampLevels = [[lampOn,.15],[3.792,.90],[3.833,1],[3.958,.22],[4.083,1]];
   let visible = false, needsPlay = false, frame = 0;
   let stalled;
@@ -17,13 +18,14 @@ const canAnimate = () => !paused && !reduced.matches;
   function paintPhase() {
     const time = video.currentTime;
     stage.dataset.phase = reduced.matches || video.error ? 'night'
-      : time >= lampOn ? 'night' : time >= dayEnds ? 'dusk' : 'day';
+      : time >= dayReturn ? 'dusk' : time >= lampOn ? 'night' : time >= dayEnds ? 'dusk' : 'day';
     const next = lampLevels.findIndex(([at]) => at > time);
     let level = 1;
     if (!reduced.matches && !video.error && next > 0) {
       const [from, dim] = lampLevels[next - 1], [to, bright] = lampLevels[next];
       level = dim + (bright - dim) * (time - from) / (to - from);
     }
+    if (!reduced.matches && !video.error && time < dayReturn) level *= Math.min(1, (dayReturn - time) / .38);
     stage.style.setProperty('--lamp-level', level.toFixed(3));
   }
 
