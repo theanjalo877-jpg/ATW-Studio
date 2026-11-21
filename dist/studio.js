@@ -424,3 +424,8 @@ if (!reduced.matches) {
     document.dispatchEvent(new Event('study-renderer'));
   }
 }
+
+const flightObserver = new IntersectionObserver(entries => {
+  for (const {target, isIntersecting} of entries) target.classList.toggle('flight-in-view', isIntersecting);
+}, {threshold:.15});
+document.querySelectorAll('.study-card:has(.study-flight)').forEach(card => flightObserver.observe(card));
