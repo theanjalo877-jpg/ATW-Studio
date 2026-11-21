@@ -266,12 +266,23 @@ const studyMotionObserver = new IntersectionObserver(entries => {
 document.querySelectorAll('.study-banner, .study-card:has(.study-flight)').forEach(card => studyMotionObserver.observe(card));
 
 {
-  const film = document.querySelector('.closing-film video');
+  const closing = document.querySelector('.closing-film');
+  const film = closing.querySelector('video');
+  const contacts = closing.querySelector('.closing-contacts');
+  // STUDIO begins to reveal 9.2 seconds into the edited film.
+  function syncClosingContacts() {
+    closing.classList.toggle('show-contacts', film.currentTime >= 9.35 || Boolean(film.error));
+    closing.classList.toggle('closing-paused', film.paused);
+  }
+  for (const event of ['timeupdate', 'seeking', 'seeked', 'play', 'pause', 'error']) {
+    film.addEventListener(event, syncClosingContacts);
+  }
+  syncClosingContacts();
   let nearby = false;
   let manuallyPaused = false;
   let pausedByPage = false;
   function syncClosingFilm() {
-    if (!nearby || !canAnimate() || document.hidden) {
+    if (!nearby || !canAnimate() || document.hidden || contacts.matches(':focus-within')) {
       if (!film.paused) {
         pausedByPage = true;
         film.pause();
@@ -289,6 +300,8 @@ document.querySelectorAll('.study-banner, .study-card:has(.study-flight)').forEa
     nearby = entry.isIntersecting;
     syncClosingFilm();
   }, {rootMargin:'0px 0px 60px'}).observe(film);
+  contacts.addEventListener('focusin', syncClosingFilm);
+  contacts.addEventListener('focusout', () => queueMicrotask(syncClosingFilm));
   document.addEventListener('visibilitychange', syncClosingFilm);
   document.addEventListener('studio-motion', syncClosingFilm);
 }

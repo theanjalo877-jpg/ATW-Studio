@@ -206,12 +206,6 @@ section[id],footer[id]{scroll-margin-top:18px}
  @keyframes flag-pass{0%,12%{background-position:100% 50%}70%,100%{background-position:0 50%}}
  @keyframes athar-ink{0%,100%{clip-path:inset(0 0 0 100%);opacity:.25}22%,81%{clip-path:inset(0);opacity:1}}
 }
-#contact{position:relative;isolation:isolate;overflow:hidden;display:grid;grid-template-columns:1fr;justify-items:center;text-align:center;align-content:center;gap:26px;min-height:min(640px,82svh);padding:clamp(65px,10vw,155px) clamp(20px,5vw,70px) 88px;background:radial-gradient(ellipse at 50% 83%,#27352d 0%,#17241e 49%,#101714 77%);border-top:1px solid #8f79565c}
-.studio-outro,.footer-links,#contact small{position:relative;z-index:1}
-.studio-outro{max-width:57rem;text-shadow:0 3px 24px #111812}
-.studio-outro h2{font:500 clamp(2.7rem,6.7vw,6.4rem)/1.03 StudioSerif,Georgia,serif;letter-spacing:-.025em;text-wrap:balance}
-.studio-outro p:last-child{max-width:49ch;margin:1.25rem auto 0;color:#dce1d6}
-#contact .footer-links{justify-content:center}
 .hero-copy .hero-tagline{font:500 clamp(1.3rem,2.15cqw,2.25rem)/1 StudioSerif,Georgia,serif;letter-spacing:-.025em}
 .contact-guide{position:absolute;right:calc(100% - 5px);bottom:0;width:54px;height:68px;pointer-events:none;filter:drop-shadow(0 3px 5px #0c171796)}
 .contact-guide img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:right bottom;opacity:0}
@@ -224,24 +218,9 @@ section[id],footer[id]{scroll-margin-top:18px}
 @keyframes contact-look{0%,18%,84%,100%{opacity:1;transform:rotate(-1deg)}23%,79%{opacity:0;transform:rotate(2deg)}}
 @keyframes contact-email{0%,18%,51%,100%{opacity:0;transform:rotate(0)}23%,46%{opacity:1;transform:rotate(2deg)}}
 @keyframes contact-whatsapp{0%,46%,84%,100%{opacity:0;transform:rotate(0)}51%,79%{opacity:1;transform:rotate(2deg)}}
-#contact{justify-items:start;text-align:left;gap:24px;background:#101713}
-.studio-outro{max-width:min(54rem,55%);text-shadow:0 2px 22px #0c1311}
-.studio-outro p:last-child{margin:1.25rem 0 0}
-#contact .footer-links{justify-content:flex-start}
-.workshop-scene{position:absolute;z-index:-1;inset:0;overflow:hidden;pointer-events:none}
-.workshop-scene img,.workshop-scene::after,.workshop-light{position:absolute;inset:0;width:100%;height:100%}
-.workshop-scene img{object-fit:cover;object-position:70% center;transform:scale(1.025);animation:workshop-camera 18s ease-in-out infinite}
-.workshop-scene::after{content:"";background:linear-gradient(90deg,#0c1413 1%,#0c1413df 26%,#0c141364 55%,transparent 83%),linear-gradient(0deg,#101713,#10171310 25%)}
-.workshop-light{mix-blend-mode:screen;background:radial-gradient(ellipse 24% 43% at 73% 42%,#f7b36f45,transparent 80%);animation:workshop-light 8s ease-in-out infinite}
-@keyframes workshop-camera{50%{transform:scale(1.065)}}
-@keyframes workshop-light{0%,100%{opacity:.37;transform:translateX(-1.5%)}45%{opacity:.85;transform:translateX(1%)}}
 @media(max-width:700px){
  .contact-dock{position:relative;inset:auto;margin-inline:auto;transform:translateX(21px)}
  .contact-guide{width:52px;height:64px;bottom:0}
- #contact{align-content:end;min-height:560px}
- .studio-outro{max-width:100%}
- .workshop-scene img{object-position:73% top;height:74%}
- .workshop-scene::after{background:linear-gradient(0deg,#101713 15%,#101713ee 29%,transparent 79%)}
 }
 @media(prefers-reduced-motion:no-preference){
  .contact-dock a{animation:guide-contact 7s ease-in-out infinite}
@@ -497,5 +476,24 @@ section[id],footer[id]{scroll-margin-top:18px}
  @keyframes reading-room-drift{from{opacity:.36;transform:translate(0,2%)}to{opacity:.72;transform:translate(2%,-4%)}}
 }
 
-.closing-film{max-width:none;padding:0;background:#000}
+.closing-film{position:relative;max-width:none;padding:0;background:#000;color:#f1e2cb}
 .closing-film video{display:block;width:100%;height:auto;aspect-ratio:16/9}
+
+.closing-contacts{
+ position:absolute;inset:67% 12px auto;display:grid;justify-items:center;
+ gap:clamp(0px,.35vw,5px);text-align:center;visibility:hidden;opacity:0;
+}
+.closing-film.show-contacts .closing-contacts,.closing-contacts:focus-within{
+ visibility:visible;opacity:1
+}
+.closing-contacts .footer-links{justify-content:center;gap:0 clamp(12px,2vw,26px)}
+.closing-contacts a{display:inline-flex;align-items:center;min-height:24px;font-size:clamp(.76rem,1.25vw,1.05rem)}
+.closing-contacts small{font-size:clamp(.65rem,.95vw,.86rem);color:#bfad95}
+@media(prefers-reduced-motion:no-preference){
+ .closing-film.show-contacts .closing-contacts{transition:opacity .28s ease-out}
+}
+@media(prefers-reduced-motion:reduce){
+ .closing-film.closing-paused .closing-contacts{
+  visibility:visible;opacity:1;background:#000a
+ }
+}
