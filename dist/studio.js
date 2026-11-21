@@ -180,7 +180,7 @@ document.querySelectorAll('.project, .build-bay').forEach(project => projectObse
     function syncScene() {
       cancelAnimationFrame(ticket);
       draw();
-      if (visible && canAnimate()) ticket = requestAnimationFrame(frame);
+      if (visible && canAnimate() && !canvas.parentElement.classList.contains('has-globe')) ticket = requestAnimationFrame(frame);
     }
     new ResizeObserver(() => {
       ({width, height} = canvas.getBoundingClientRect());
@@ -196,6 +196,7 @@ document.querySelectorAll('.project, .build-bay').forEach(project => projectObse
     }).observe(canvas);
     reduced.addEventListener('change', syncScene);
     document.addEventListener('studio-motion', syncScene);
+    document.addEventListener('study-renderer', syncScene);
   }
 }
 
@@ -313,5 +314,113 @@ if (!reduced.matches) {
     if (!feature) continue;
     feature.classList.add(ready);
     storyObserver.observe(feature);
+  }
+}
+
+if (!reduced.matches) {
+  const enters = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.add('portfolio-entered');
+      enters.unobserve(entry.target);
+    }
+  }, {threshold:.18});
+  document.querySelectorAll('.brand-projects, .study-banner, [data-study]').forEach((node, index) => {
+    if (node.hasAttribute('data-study')) node.style.setProperty('--entrance-delay', (index % 3) * .07 + 's');
+    enters.observe(node);
+  });
+}
+
+{
+  const canvas = document.querySelector('.study-globe');
+  const banner = canvas.parentElement;
+  let initialized = false;
+  const prepare = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) initialize();
+  }, {rootMargin:'160px'});
+  prepare.observe(canvas);
+  document.addEventListener('portfolio-three', initialize);
+
+  function initialize() {
+    if (initialized || reduced.matches || !window.THREE) return;
+    const bounds = banner.getBoundingClientRect();
+    if (bounds.top > innerHeight + 160 || bounds.bottom < -160) return;
+
+    const T = window.THREE;
+    let renderer;
+    initialized = true;
+    prepare.disconnect();
+    try {
+      renderer = new T.WebGLRenderer({canvas, alpha:true, antialias:true, powerPreference:'low-power'});
+    } catch {
+      return;
+    }
+    const scene = new T.Scene(), camera = new T.PerspectiveCamera(36,1,.1,30);
+    camera.position.z = 5;
+    const globe = new T.Group();
+    scene.add(globe);
+    const wire = new T.LineBasicMaterial({color:0x97d1cb,transparent:true,opacity:.31});
+    const route = new T.LineBasicMaterial({color:0xf4c783,transparent:true,opacity:.9});
+    const tau = Math.PI * 2;
+    function trace(points, material, loop = false) {
+      const geometry = new T.BufferGeometry().setFromPoints(points);
+      globe.add(loop ? new T.LineLoop(geometry, material) : new T.Line(geometry, material));
+    }
+    for (let i = -3; i <= 3; i++) {
+      const y=i*.25, r=Math.sqrt(1-y*y);
+      trace(Array.from({length:96},(_,j)=>new T.Vector3(r*Math.cos(j*tau/96),y,r*Math.sin(j*tau/96))),wire,true);
+    }
+    for (let i = 0; i < 8; i++) {
+      const longitude=i*Math.PI/8;
+      trace(Array.from({length:96},(_,j)=>new T.Vector3(Math.cos(longitude)*Math.sin(j*tau/96),Math.cos(j*tau/96),Math.sin(longitude)*Math.sin(j*tau/96))),wire,true);
+    }
+    const paths = [
+      [[-.88,.11,.49],[-.32,1.04,.7],[.72,.36,.62]],
+      [[-.43,-.7,.57],[.26,-.14,1.27],[.76,.51,.57]],
+      [[-.8,.35,.54],[-.05,.66,1.03],[.57,-.48,.67]]
+    ].map(points => new T.QuadraticBezierCurve3(...points.map(v=>new T.Vector3(...v))));
+    const markers = paths.map(path => {
+      trace(path.getPoints(64),route);
+      const dot=new T.Mesh(new T.SphereGeometry(.024,10,8),new T.MeshBasicMaterial({color:0xffd99c}));
+      globe.add(dot);
+      return dot;
+    });
+    let frame=0, visible=false, started;
+    function draw(time) {
+      started ??= time;
+      const age=(time-started)/1000;
+      globe.rotation.set(-.18,age*.16-.45,.13);
+      globe.scale.setScalar(.86 + .14 * Math.min(age/.85,1));
+      markers.forEach((dot,index)=>dot.position.copy(paths[index].getPoint((age*.18+index*.29)%1)));
+      renderer.render(scene,camera);
+    }
+    function tick(time) {
+      draw(time);
+      frame=requestAnimationFrame(tick);
+    }
+    function sync() {
+      cancelAnimationFrame(frame);
+      if (visible && canAnimate() && !document.hidden) frame=requestAnimationFrame(tick);
+    }
+    new ResizeObserver(() => {
+      const {width,height}=canvas.getBoundingClientRect();
+      if (!width || !height) return;
+      renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.6));
+      renderer.setSize(width,height,false);
+      camera.aspect=width/height;
+      camera.updateProjectionMatrix();
+      draw(performance.now());
+    }).observe(canvas);
+    new IntersectionObserver(([entry]) => {visible=entry.isIntersecting;sync();}).observe(canvas);
+    reduced.addEventListener('change',sync);
+    document.addEventListener('visibilitychange',sync);
+    document.addEventListener('studio-motion',sync);
+    canvas.addEventListener('webglcontextlost',()=>{
+      cancelAnimationFrame(frame);
+      banner.classList.remove('has-globe');
+      document.dispatchEvent(new Event('study-renderer'));
+    },{once:true});
+    banner.classList.add('has-globe');
+    document.dispatchEvent(new Event('study-renderer'));
   }
 }

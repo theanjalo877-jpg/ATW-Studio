@@ -32,13 +32,27 @@ def portfolio_html(mobile=False):
     watch_page = (ASSETS / "emirati" / "index.html").read_text(encoding="utf-8")
     three, model, *_ = re.findall(r"<script>(.*?)</script>", watch_page, flags=re.S)
     preview_script = f"""
-<script type="text/plain" id="watch-renderer">{three}
-{model}</script>
+<script type="text/plain" id="three-runtime">{three}</script>
+<script type="text/plain" id="watch-renderer">{model}</script>
 <script>
+function loadPortfolioThree() {{
+  if (window.THREE) return;
+  const script = document.createElement('script');
+  script.textContent = document.getElementById('three-runtime').textContent;
+  document.body.append(script);
+  document.dispatchEvent(new Event('portfolio-three'));
+}}
+const studyLoader = new IntersectionObserver(([entry]) => {{
+  if (!entry.isIntersecting || reduced.matches) return;
+  studyLoader.disconnect();
+  loadPortfolioThree();
+}});
+studyLoader.observe(document.querySelector('.study-banner'));
 const watchPreview = document.querySelector('.collection-watch');
 const watchLoader = new IntersectionObserver(([entry]) => {{
   if (!entry.isIntersecting) return;
   watchLoader.disconnect();
+  loadPortfolioThree();
   const program = document.createElement('script');
   program.textContent = document.getElementById('watch-renderer').textContent;
   document.body.append(program);
