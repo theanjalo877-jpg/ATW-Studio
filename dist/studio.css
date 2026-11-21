@@ -347,3 +347,11 @@ section[id],footer[id]{scroll-margin-top:18px}
  .office-name{inset:3% auto auto 50%;width:min(88vw,440px);transform:translateX(-50%);display:flex;gap:.27em;justify-content:center;font-size:clamp(17px,4.7vw,30px)}
  .office-name span:nth-child(n){position:static;font-size:inherit}
 }
+
+.atelier-feature{display:grid;grid-template-columns:1fr 1fr;align-items:end;gap:clamp(18px,5vw,72px);width:calc(100% - 2 * clamp(12px,3vw,50px));margin:clamp(22px,4vw,64px) auto;padding:clamp(28px,5vw,72px);color:#261c21;background:#f0e5df;border:1px solid #d5c0b6;border-radius:20px}
+.atelier-feature .eyebrow{color:#744954}
+.atelier-feature h2{font:500 clamp(2.7rem,6.4vw,6rem)/1 Georgia,serif;letter-spacing:-.055em}
+.atelier-copy p{max-width:38ch;margin:0 0 16px;line-height:1.65}
+.atelier-copy .pill{border-color:#946e75;color:#3d252e}
+.atelier-copy .pill:hover,.atelier-copy .pill:focus-visible{background:#e6d1cc}
+@media(max-width:720px){.atelier-feature{grid-template-columns:1fr;align-items:start}}
