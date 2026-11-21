@@ -264,3 +264,31 @@ const studyMotionObserver = new IntersectionObserver(entries => {
   for (const {target, isIntersecting} of entries) target.classList.toggle('study-in-view', isIntersecting);
 }, {threshold:.15});
 document.querySelectorAll('.study-banner, .study-card:has(.study-flight)').forEach(card => studyMotionObserver.observe(card));
+
+{
+  const film = document.querySelector('.closing-film video');
+  let nearby = false;
+  let manuallyPaused = false;
+  let pausedByPage = false;
+  function syncClosingFilm() {
+    if (!nearby || !canAnimate() || document.hidden) {
+      if (!film.paused) {
+        pausedByPage = true;
+        film.pause();
+      }
+      return;
+    }
+    if (!manuallyPaused) film.play().catch(() => {});
+  }
+  film.addEventListener('pause', () => {
+    manuallyPaused = !pausedByPage;
+    pausedByPage = false;
+  });
+  film.addEventListener('play', () => { manuallyPaused = false; });
+  new IntersectionObserver(([entry]) => {
+    nearby = entry.isIntersecting;
+    syncClosingFilm();
+  }, {rootMargin:'0px 0px 60px'}).observe(film);
+  document.addEventListener('visibilitychange', syncClosingFilm);
+  document.addEventListener('studio-motion', syncClosingFilm);
+}

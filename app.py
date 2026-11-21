@@ -25,7 +25,7 @@ def portfolio_html(mobile=False):
     page = re.sub(r'"([a-z0-9-]+\.webp)"', embed_image, page)
     page = page.replace('href="emirati/"', 'href="/?experience=emirati" target="_blank" rel="noopener noreferrer"')
     page = page.replace('"emirati/frames/orbit/000.webp"', '"' + watch_frame_url("orbit/000.webp") + '"')
-    for name in ("office-intro.mp4", "qame-film.mp4", "qame-store-film.mp4"):
+    for name in ("office-intro.mp4", "qame-film.mp4", "qame-store-film.mp4", "studio-closing.mp4"):
         media_name = "qame-store-mobile.mp4" if mobile and name == "qame-store-film.mp4" else name
         video = b64encode((ASSETS / media_name).read_bytes()).decode("ascii")
         page = page.replace(f'src="{name}"', f'src="data:video/mp4;base64,{video}"')

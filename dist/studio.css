@@ -496,3 +496,6 @@ section[id],footer[id]{scroll-margin-top:18px}
  @keyframes reading-room-glow{from{opacity:.34;transform:translateX(-2%)}to{opacity:.74;transform:translateX(3%)}}
  @keyframes reading-room-drift{from{opacity:.36;transform:translate(0,2%)}to{opacity:.72;transform:translate(2%,-4%)}}
 }
+
+.closing-film{max-width:none;padding:0;background:#000}
+.closing-film video{display:block;width:100%;height:auto;aspect-ratio:16/9}
