@@ -79,7 +79,7 @@ h3{font-size:clamp(22px,2.6vw,33px)}
 footer{background:var(--dark);color:var(--cream);padding:48px clamp(20px,6vw,88px) 88px;display:grid;grid-template-columns:1.1fr 1fr;gap:14px}
 footer .eyebrow,footer small{color:#b7c0ae}
 .footer-links{display:flex;flex-wrap:wrap;align-content:center;gap:10px 18px}.footer-links a{text-decoration:underline;text-underline-offset:3px}
-.contact-dock{position:fixed;z-index:2;right:clamp(10px,3vw,34px);bottom:calc(72px + env(safe-area-inset-bottom, 0px));display:flex;gap:5px;padding:6px;background:#131d19;border:1px solid #4a5a4f;border-radius:100px;color:#f9f3e7;box-shadow:0 6px 22px #101c1760}
+.contact-dock{position:fixed;z-index:2;right:clamp(10px,3vw,34px);bottom:calc(56px + env(safe-area-inset-bottom, 0px));display:flex;gap:5px;padding:6px;background:#131d19;border:1px solid #4a5a4f;border-radius:100px;color:#f9f3e7;box-shadow:0 6px 22px #101c1760}
 .contact-dock a{font-size:.9rem;border-radius:100px;padding:7px 10px;white-space:nowrap}.contact-dock a:hover{background:#33463c}
 .contact-dock a:last-child{background:#d7e7cf;color:#1c3728}.contact-dock a:last-child:hover{background:#edf8e8}
 @media(max-width:820px){
@@ -554,3 +554,14 @@ section[id],footer[id]{scroll-margin-top:18px}
  }
 }
 .show-contacts .closing-wordmark{opacity:1}
+
+.work{padding-top:64px;border-top:1px solid rgba(0,0,0,0.08)}
+.work .concept-eyebrow{margin:0 0 8px;color:#6b6b6b;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+.work .brand-projects{margin-bottom:0}
+.prototype-heading{display:block;margin-top:48px}
+.prototype-heading .text-link{display:inline-block;margin-top:12px}
+.brand-projects .concept-badge{
+ position:absolute;top:12px;left:12px;padding:4px 9px;border-radius:100px;
+ border:1px solid #ffffff28;background:#101018a6;color:#fff;font-size:11px;
+ backdrop-filter:blur(6px);pointer-events:none
+}
