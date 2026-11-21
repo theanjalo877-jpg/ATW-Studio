@@ -397,6 +397,8 @@ section[id],footer[id]{scroll-margin-top:18px}
 .brand-projects sup{position:absolute;right:0;top:-.48em;font:600 .20em/1 var(--sans);letter-spacing:0}
 .brand-projects span{color:#eadccd;font-size:.87rem}
 .brand-qame img{object-position:center 55%}.brand-qame strong{font-family:StudioSerif,Georgia,serif}
+.brand-athar strong{font-family:"Noto Naskh Arabic",Amiri,serif;letter-spacing:0}
+.brand-athar sup{right:auto;left:0;top:0}
 .brand-athar a{background:#121914}.brand-athar img{object-position:70% 46%}
 .brand-lysse img{object-position:50% 40%}.brand-lysse strong{font-family:Allura,Georgia,cursive}
 .brand-lysse sup{top:-.8em}
