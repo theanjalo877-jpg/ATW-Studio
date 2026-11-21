@@ -268,13 +268,24 @@ document.querySelectorAll('.study-banner, .study-card:has(.study-flight)').forEa
 {
   const closing = document.querySelector('.closing-film');
   const film = closing.querySelector('video');
+  const dock = document.querySelector('.contact-dock');
+  const guide = dock.querySelector('.contact-guide');
+  const guideSlot = closing.querySelector('.closing-guide-slot');
+  new IntersectionObserver(([entry]) => {
+    dock.classList.toggle('contact-docked', entry.isIntersecting);
+    if (entry.isIntersecting) guideSlot.append(guide);
+    else {
+      dock.prepend(guide);
+      closing.classList.remove('show-contacts');
+    }
+  }, {rootMargin:'0px 0px -48px'}).observe(closing.querySelector('.closing-brand'));
   let nearby = false;
   function syncClosingFrame() {
     const time = film.currentTime;
     closing.classList.toggle('show-tease', time >= 5.7 && time < 7.15);
     closing.classList.toggle('show-soon', time >= 7.4);
     closing.classList.toggle('show-brand', time >= 9.2 || Boolean(film.error));
-    closing.classList.toggle('show-contacts', time >= 10.5 || Boolean(film.error));
+    if (time >= 10.5 || film.error) closing.classList.add('show-contacts');
   }
   function syncClosingFilm() {
     if (nearby && canAnimate() && !document.hidden) {
