@@ -40,14 +40,7 @@ function loadPortfolioThree() {{
   const script = document.createElement('script');
   script.textContent = document.getElementById('three-runtime').textContent;
   document.body.append(script);
-  document.dispatchEvent(new Event('portfolio-three'));
 }}
-const studyLoader = new IntersectionObserver(([entry]) => {{
-  if (!entry.isIntersecting || reduced.matches) return;
-  studyLoader.disconnect();
-  loadPortfolioThree();
-}});
-studyLoader.observe(document.querySelector('.study-banner'));
 const watchPreview = document.querySelector('.collection-watch');
 const watchLoader = new IntersectionObserver(([entry]) => {{
   if (!entry.isIntersecting) return;
