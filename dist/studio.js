@@ -300,13 +300,18 @@ for (const feature of document.querySelectorAll('.qame-film')) {
   syncButtons();
 }
 
-const qameStory = document.querySelector('.qame-story');
-if (qameStory && !reduced.matches) {
-  const storyObserver = new IntersectionObserver(([entry]) => {
-    if (!entry.isIntersecting) return;
-    qameStory.classList.add('qame-story-visible');
-    storyObserver.disconnect();
-  }, {threshold:.38});
-  qameStory.classList.add('qame-story-ready');
-  storyObserver.observe(qameStory);
+if (!reduced.matches) {
+  const storyObserver = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.add(entry.target.classList.contains('qame-story') ? 'qame-story-visible' : 'atelier-visible');
+      storyObserver.unobserve(entry.target);
+    }
+  }, {threshold:.3});
+  for (const [selector, ready] of [['.qame-story','qame-story-ready'], ['.atelier-feature','atelier-ready']]) {
+    const feature = document.querySelector(selector);
+    if (!feature) continue;
+    feature.classList.add(ready);
+    storyObserver.observe(feature);
+  }
 }
