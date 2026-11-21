@@ -536,21 +536,29 @@ section[id],footer[id]{scroll-margin-top:18px}
 }
 .closing-contacts a:hover,.closing-contacts a:focus-visible{background:#30251a;border-color:#e1c297}
 .closing-contacts svg{width:21px;height:21px}
-@media(prefers-reduced-motion:no-preference){
- .closing-shot .closing-soon{
-  width:max-content;max-width:calc(100% - 24px);margin-inline:auto;
-  background:linear-gradient(180deg,#fbfdff 12%,#a9b4c3 47%,#727f90 50%,#f5f6fa 74%,#a5aebb 100%);
-  background-clip:text;color:transparent;text-shadow:none
+#concept-lab-heading{color:#141315}
+.closing-shot .closing-soon{
+ width:max-content;max-width:calc(100% - 24px);margin-inline:auto;color:#e9c078
+}
+@supports(background-clip:text){
+ .gold-wave{
+  background-image:linear-gradient(105deg,#100f11 12%,#252222 32%,#936229 40%,#dfad58 46%,#fff0cb 50%,#dfad58 54%,#936229 60%,#252222 68%,#100f11 88%);
+  background-position:64% 0;background-size:200% 100%;background-clip:text;color:transparent
  }
- .show-soon .closing-soon{
-  background-image:linear-gradient(105deg,transparent 40%,#fff 49%,#eef6ff 51%,transparent 59%),
-    linear-gradient(180deg,#fbfdff 12%,#a9b4c3 47%,#727f90 50%,#f5f6fa 74%,#a5aebb 100%);
-  background-size:260% 100%,100% 100%;
-  animation:closing-chrome-reveal 1.65s cubic-bezier(.28,.55,.3,1) both
+ .closing-shot .closing-soon.gold-wave{
+  color:transparent;text-shadow:none;-webkit-text-stroke:1px #caa063
  }
- @keyframes closing-chrome-reveal{
-  from{clip-path:inset(-20% 100% -20% 0);background-position:100% 0,0 0}
-  to{clip-path:inset(-20% -2% -20% 0);background-position:0 0,0 0}
+ @media(prefers-reduced-motion:no-preference){
+  #concept-lab-heading .gold-wave{animation:gold-wave 8s ease-in-out infinite alternate}
+  .show-soon .closing-soon.gold-wave{
+   animation:closing-gold-reveal 1.5s cubic-bezier(.28,.55,.3,1) both,gold-wave 5.4s ease-in-out infinite alternate
+  }
+  .motion-paused .gold-wave{animation-play-state:paused!important}
+  @keyframes gold-wave{from{background-position:100% 0}to{background-position:0 0}}
+  @keyframes closing-gold-reveal{
+   from{clip-path:inset(-20% 100% -20% 0)}
+   to{clip-path:inset(-20% -2% -20% 0)}
+  }
  }
 }
 .show-contacts .closing-wordmark{opacity:1}
