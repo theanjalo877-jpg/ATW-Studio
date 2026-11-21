@@ -268,40 +268,31 @@ document.querySelectorAll('.study-banner, .study-card:has(.study-flight)').forEa
 {
   const closing = document.querySelector('.closing-film');
   const film = closing.querySelector('video');
-  const contacts = closing.querySelector('.closing-contacts');
-  // STUDIO begins to reveal 9.2 seconds into the edited film.
-  function syncClosingContacts() {
-    closing.classList.toggle('show-contacts', film.currentTime >= 9.35 || Boolean(film.error));
-    closing.classList.toggle('closing-paused', film.paused);
-  }
-  for (const event of ['timeupdate', 'seeking', 'seeked', 'play', 'pause', 'error']) {
-    film.addEventListener(event, syncClosingContacts);
-  }
-  syncClosingContacts();
   let nearby = false;
-  let manuallyPaused = false;
-  let pausedByPage = false;
-  function syncClosingFilm() {
-    if (!nearby || !canAnimate() || document.hidden || contacts.matches(':focus-within')) {
-      if (!film.paused) {
-        pausedByPage = true;
-        film.pause();
-      }
-      return;
-    }
-    if (!manuallyPaused) film.play().catch(() => {});
+  function syncClosingFrame() {
+    const time = film.currentTime;
+    closing.classList.toggle('show-tease', time >= 5.7 && time < 7.15);
+    closing.classList.toggle('show-soon', time >= 7.4);
+    closing.classList.toggle('show-brand', time >= 9.2 || Boolean(film.error));
+    closing.classList.toggle('show-contacts', time >= 10.5 || Boolean(film.error));
   }
-  film.addEventListener('pause', () => {
-    manuallyPaused = !pausedByPage;
-    pausedByPage = false;
-  });
-  film.addEventListener('play', () => { manuallyPaused = false; });
+  function syncClosingFilm() {
+    if (nearby && canAnimate() && !document.hidden) {
+      film.play().catch(error => {
+        if (error.name !== 'AbortError') closing.classList.add('closing-fallback');
+      });
+    } else {
+      film.pause();
+    }
+  }
+  film.addEventListener('playing', () => closing.classList.remove('closing-fallback'));
+  for (const event of ['timeupdate', 'seeking', 'seeked', 'error']) {
+    film.addEventListener(event, syncClosingFrame);
+  }
   new IntersectionObserver(([entry]) => {
     nearby = entry.isIntersecting;
     syncClosingFilm();
   }, {rootMargin:'0px 0px 60px'}).observe(film);
-  contacts.addEventListener('focusin', syncClosingFilm);
-  contacts.addEventListener('focusout', () => queueMicrotask(syncClosingFilm));
   document.addEventListener('visibilitychange', syncClosingFilm);
   document.addEventListener('studio-motion', syncClosingFilm);
 }
