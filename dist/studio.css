@@ -627,10 +627,15 @@ section[id],footer[id]{scroll-margin-top:18px}
 .chrome-studio{display:inline-block;white-space:nowrap;color:#f1e9dc}
 @supports(background-clip:text){
  .chrome-studio{
-  background:linear-gradient(105deg,#201f21 12%,#a1a3a9 36%,#fcfdff 50%,#72747a 62%,#19181b 85%) 45% 0/220% 100%;
+  background-image:linear-gradient(90deg,#141417 0%,#44474e 9%,#bfc5ce 17%,#f8fcff 23%,
+   #7c838e 31%,#35383e 40%,#101012 51%,#42454d 65%,#9ca3ae 75%,#34363c 88%,#141417 100%);
+  background-size:200% 100%;background-repeat:repeat-x;
   background-clip:text;color:transparent;-webkit-text-stroke:.35px #b8b8bf
  }
  @media(prefers-reduced-motion:no-preference){
-  .qame-credit:is(:hover,:focus-within) .chrome-studio{animation:gold-wave 4s ease-in-out infinite alternate}
+  .qame-story .chrome-studio{animation:studio-chrome-wave 4.8s linear infinite paused}
+  .qame-story:is(:hover,:focus-within) .chrome-studio{animation-play-state:running}
+  .motion-paused .qame-story .chrome-studio{animation-play-state:paused}
+  @keyframes studio-chrome-wave{from{background-position:200% 0}to{background-position:0 0}}
  }
 }
