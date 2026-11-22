@@ -9,8 +9,16 @@ import streamlit as st
 ASSETS = Path(__file__).with_name("dist")
 
 
-@lru_cache(maxsize=2)
 def portfolio_html(mobile=False):
+    # Streamlit may rerun this launcher without reloading the embedded files.
+    assets = (*ASSETS.glob("*.*"), ASSETS / "emirati" / "index.html",
+              ASSETS / "emirati" / "frames" / "orbit" / "000.webp")
+    revision = tuple((path.name, path.stat().st_mtime_ns) for path in sorted(assets) if path.is_file())
+    return _portfolio_html(mobile, revision)
+
+
+@lru_cache(maxsize=2)
+def _portfolio_html(mobile, _revision):
     page = (ASSETS / "index.html").read_text(encoding="utf-8")
     styles = (ASSETS / "studio.css").read_text(encoding="utf-8")
     script = (ASSETS / "studio.js").read_text(encoding="utf-8")
