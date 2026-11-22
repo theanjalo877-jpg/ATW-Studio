@@ -7,7 +7,15 @@ const canAnimate = () => !paused && !reduced.matches;
 
 {
   const video = stage.querySelector('.stage-video');
-  const nameParts = [...stage.querySelectorAll('.office-name span')];
+  const nameLetters = [...stage.querySelectorAll('.office-name > span')].flatMap(word => {
+    const letters = Array.from(word.textContent, character => {
+      const letter = document.createElement('i');
+      letter.textContent = character;
+      return letter;
+    });
+    word.replaceChildren(...letters);
+    return letters;
+  });
   const dayEnds = 2.48;
   // The fixture flickers once before settling. These times match the encoded frames.
   const lampOn = 3.708;
@@ -21,9 +29,9 @@ const canAnimate = () => !paused && !reduced.matches;
     stage.dataset.phase = reduced.matches || video.error ? 'night'
       : time >= dayReturn ? 'dusk' : time >= lampOn ? 'night' : time >= dayEnds ? 'dusk' : 'day';
     if (stage.dataset.phase === 'day') {
-      nameParts.forEach((part, index) => {
-        const progress = Math.max(0, Math.min(1, (time - .1 - index * .48) / .68));
-        part.style.setProperty('--name-reveal', (progress * progress * (3 - 2 * progress)).toFixed(3));
+      nameLetters.forEach((letter, index) => {
+        const progress = Math.max(0, Math.min(1, (time - .1 - index * .081) / .36));
+        letter.style.setProperty('--name-reveal', (1 - (1 - progress) ** 3).toFixed(3));
       });
     }
     const next = lampLevels.findIndex(([at]) => at > time);
@@ -109,10 +117,18 @@ const canAnimate = () => !paused && !reduced.matches;
     updateControls();
   });
   new IntersectionObserver(([entry]) => {
+    const returning = entry.isIntersecting && !visible;
     visible = entry.isIntersecting;
+    if (returning && canAnimate() && (needsPlay || video.ended)) {
+      if (video.error) video.load();
+      needsPlay = false;
+      video.currentTime = 0;
+      updateControls();
+    }
     syncIntro();
   }).observe(stage);
   document.addEventListener('visibilitychange', syncIntro);
+  window.addEventListener('pageshow', syncIntro);
   motion.addEventListener('click', () => {
     if (video.ended || video.error) return restart();
     if (needsPlay) paused = needsPlay = false;

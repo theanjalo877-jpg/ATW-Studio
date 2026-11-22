@@ -26,7 +26,8 @@ a:focus-visible,button:focus-visible{outline:3px solid #c7892c;outline-offset:4p
 .stage h1{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .office-name{position:absolute;inset:0;pointer-events:none;visibility:hidden;color:#fff1d4;text-shadow:0 2px 10px #5f350a9c;font:800 3.1cqw/1 var(--display);letter-spacing:-.045em}
 .stage[data-phase="day"] .office-name{visibility:visible}
-.office-name span{position:absolute;white-space:nowrap;opacity:var(--name-reveal,0);transform:translateX(calc((var(--name-reveal,0) - 1) * .25em))}
+.office-name span{position:absolute;white-space:nowrap}
+.office-name i{display:inline-block;font-style:normal;opacity:var(--name-reveal,0);transform:translateY(calc((var(--name-reveal,0) - 1) * .26em)) scale(calc(1.12 - var(--name-reveal,0) * .12))}
 .office-name span:nth-child(1){left:22.6%;top:8.5%}
 .office-name span:nth-child(2){left:28.5%;top:20.7%;font-size:2.61cqw}
 .office-name span:nth-child(3){left:19.3%;top:26.1%;font-size:2.96cqw}
@@ -342,10 +343,10 @@ section[id],footer[id]{scroll-margin-top:18px}
  .atelier-ready:not(.atelier-visible) .atelier-copy > *{opacity:0}
  .atelier-visible .atelier-copy > *{animation:atelier-in .85s cubic-bezier(.22,.65,.24,1) both}
  .atelier-visible .atelier-copy h2{animation:none}
- .atelier-visible #atelier-heading span{animation:atelier-write 1.65s .16s cubic-bezier(.33,.02,.38,1) both}
- .atelier-visible #atelier-heading::after{animation:atelier-nib 1.65s .16s cubic-bezier(.33,.02,.38,1) both}
- .atelier-visible .atelier-copy p:not(.eyebrow){animation-delay:1.35s}
- .atelier-visible .atelier-link{animation-delay:1.57s}
+ .atelier-visible #atelier-heading span{animation:atelier-write 2.85s .16s cubic-bezier(.36,.05,.35,1) both}
+ .atelier-visible #atelier-heading::after{animation:atelier-nib 2.85s .16s cubic-bezier(.36,.05,.35,1) both}
+ .atelier-visible .atelier-copy p:not(.eyebrow){animation-delay:2.5s}
+ .atelier-visible .atelier-link{animation-delay:2.72s}
  .atelier-visible .atelier-scene{animation:atelier-depth 6s cubic-bezier(.2,.65,.22,1) both}
  @keyframes atelier-in{from{opacity:0;transform:translateY(11px)}to{opacity:1;transform:none}}
  @keyframes atelier-depth{from{transform:scale(1.035)}to{transform:scale(1)}}
@@ -618,4 +619,18 @@ section[id],footer[id]{scroll-margin-top:18px}
   to{clip-path:inset(-10% 0 -10% 0);background-position:0 0}
  }
  @keyframes fab-type-in{from{opacity:0}to{opacity:1}}
+}
+
+.qame-story .qame-credit{
+ margin:clamp(22px,4vw,45px) 0 0;font-size:.68rem;letter-spacing:.12em;line-height:1.5
+}
+.chrome-studio{display:inline-block;white-space:nowrap;color:#f1e9dc}
+@supports(background-clip:text){
+ .chrome-studio{
+  background:linear-gradient(105deg,#201f21 12%,#a1a3a9 36%,#fcfdff 50%,#72747a 62%,#19181b 85%) 45% 0/220% 100%;
+  background-clip:text;color:transparent;-webkit-text-stroke:.35px #b8b8bf
+ }
+ @media(prefers-reduced-motion:no-preference){
+  .qame-credit:is(:hover,:focus-within) .chrome-studio{animation:gold-wave 4s ease-in-out infinite alternate}
+ }
 }
