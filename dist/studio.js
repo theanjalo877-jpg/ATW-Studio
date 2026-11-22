@@ -308,8 +308,7 @@ document.querySelectorAll('.study-banner, .study-card:has(.study-flight)').forEa
   document.addEventListener('studio-motion', syncClosingFilm);
 }
 
-{
-  const preview = document.querySelector('.fab-cover video');
+document.querySelectorAll('.fab-cover video, .fab-title-film').forEach(preview => {
   let inView = false;
   function syncFabPreview() {
     if (inView && canAnimate() && !document.hidden) preview.play().catch(() => {});
@@ -321,4 +320,4 @@ document.querySelectorAll('.study-banner, .study-card:has(.study-flight)').forEa
   }, {threshold: .2}).observe(preview);
   document.addEventListener('visibilitychange', syncFabPreview);
   document.addEventListener('studio-motion', syncFabPreview);
-}
+});

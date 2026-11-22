@@ -597,3 +597,8 @@ section[id],footer[id]{scroll-margin-top:18px}
 
 .fab-cover figcaption{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 14px}
 .fab-cover a{text-decoration:underline;text-underline-offset:3px}
+
+.fab-title-film{
+ display:block;width:100%;height:auto;aspect-ratio:16/9;margin-top:22px;
+ border:1px solid #947255;border-radius:8px;background:#19130e
+}
