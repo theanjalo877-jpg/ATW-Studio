@@ -307,3 +307,18 @@ document.querySelectorAll('.study-banner, .study-card:has(.study-flight)').forEa
   document.addEventListener('visibilitychange', syncClosingFilm);
   document.addEventListener('studio-motion', syncClosingFilm);
 }
+
+{
+  const preview = document.querySelector('.fab-cover video');
+  let inView = false;
+  function syncFabPreview() {
+    if (inView && canAnimate() && !document.hidden) preview.play().catch(() => {});
+    else preview.pause();
+  }
+  new IntersectionObserver(([entry]) => {
+    inView = entry.isIntersecting;
+    syncFabPreview();
+  }, {threshold: .2}).observe(preview);
+  document.addEventListener('visibilitychange', syncFabPreview);
+  document.addEventListener('studio-motion', syncFabPreview);
+}
