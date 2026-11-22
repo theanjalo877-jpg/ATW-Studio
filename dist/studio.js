@@ -308,7 +308,8 @@ document.querySelectorAll('.study-banner, .study-card:has(.study-flight)').forEa
   document.addEventListener('studio-motion', syncClosingFilm);
 }
 
-document.querySelectorAll('.fab-cover video, .fab-title-film').forEach(preview => {
+{
+  const preview = document.querySelector('.fab-cover video');
   let inView = false;
   function syncFabPreview() {
     if (inView && canAnimate() && !document.hidden) preview.play().catch(() => {});
@@ -320,4 +321,38 @@ document.querySelectorAll('.fab-cover video, .fab-title-film').forEach(preview =
   }, {threshold: .2}).observe(preview);
   document.addEventListener('visibilitychange', syncFabPreview);
   document.addEventListener('studio-motion', syncFabPreview);
-});
+}
+
+if (!reduced.matches) {
+  const copy = document.querySelector('.fab-copy');
+  const description = copy.querySelector('.fab-description');
+  const reveal = new IntersectionObserver(([entry]) => {
+    if (!entry.isIntersecting) return;
+    reveal.disconnect();
+    if (!canAnimate()) return;
+
+    const original = document.createElement('span');
+    original.className = 'fab-description-source';
+    original.textContent = description.textContent;
+    const typed = document.createElement('span');
+    typed.setAttribute('aria-hidden', 'true');
+    let delay = 2250;
+    for (const word of original.textContent.split(' ')) {
+      if (typed.childNodes.length) typed.append(' ');
+      const group = document.createElement('span');
+      group.className = 'fab-description-word';
+      for (const character of word) {
+        const letter = document.createElement('span');
+        letter.className = 'fab-letter';
+        letter.textContent = character;
+        letter.style.setProperty('--fab-delay', delay + 'ms');
+        group.append(letter);
+        delay += /[,.]/.test(character) ? 130 : 45;
+      }
+      typed.append(group);
+    }
+    description.replaceChildren(original, typed);
+    copy.classList.add('fab-revealing');
+  }, {threshold:.35});
+  reveal.observe(copy);
+}

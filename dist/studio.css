@@ -582,8 +582,9 @@ section[id],footer[id]{scroll-margin-top:18px}
  border:1px solid #705843;border-radius:20px;
  background:radial-gradient(ellipse at 78% 38%,#35271d,#1a1714 72%);color:#f6eadd
 }
+.fab-copy{container-type:inline-size}
 .fab-copy .eyebrow{color:#ddbb89}
-.fab-copy h2{font:500 clamp(2.6rem,6vw,6rem)/.98 StudioSerif,Georgia,serif;letter-spacing:-.045em}
+.fab-copy h2{font:500 clamp(1rem,10.8cqi,4.8rem)/1.15 StudioSerif,Georgia,serif;letter-spacing:-.045em;white-space:nowrap}
 .fab-copy .fab-tagline{color:#f4d6a9;font:500 clamp(1.25rem,2.3vw,1.85rem)/1.2 StudioSerif,Georgia,serif;margin:18px 0 0}
 .fab-copy p:not(.eyebrow):not(.fab-tagline){color:#e3d4c8;max-width:45ch}
 .fab-copy .atelier-link{margin-top:8px}
@@ -598,7 +599,23 @@ section[id],footer[id]{scroll-margin-top:18px}
 .fab-cover figcaption{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 14px}
 .fab-cover a{text-decoration:underline;text-underline-offset:3px}
 
-.fab-title-film{
- display:block;width:100%;height:auto;aspect-ratio:16/9;margin-top:22px;
- border:1px solid #947255;border-radius:8px;background:#19130e
+.fab-copy h2 span{display:inline-block}
+.fab-description-word{white-space:nowrap}
+.fab-description-source{
+ position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+ overflow:hidden;clip-path:inset(50%);white-space:nowrap
+}
+@media(prefers-reduced-motion:no-preference){
+ .fab-revealing h2 span{
+  background:linear-gradient(105deg,#f6eadd 32%,#e6b775 47%,#fff4cc 51%,#f6eadd 64%) 100% 0/260% 100%;
+  background-clip:text;color:transparent;
+  animation:fab-title-write 2.4s cubic-bezier(.3,.6,.3,1) both
+ }
+ .fab-revealing .fab-letter{animation:fab-type-in 45ms linear var(--fab-delay) both}
+ .motion-paused .fab-revealing h2 span,.motion-paused .fab-revealing .fab-letter{animation-play-state:paused}
+ @keyframes fab-title-write{
+  from{clip-path:inset(-10% 100% -10% 0);background-position:100% 0}
+  to{clip-path:inset(-10% 0 -10% 0);background-position:0 0}
+ }
+ @keyframes fab-type-in{from{opacity:0}to{opacity:1}}
 }
