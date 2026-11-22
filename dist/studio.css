@@ -590,7 +590,7 @@ section[id],footer[id]{scroll-margin-top:18px}
 .fab-copy p:not(.eyebrow):not(.fab-tagline){color:#e3d4c8;max-width:45ch}
 .fab-copy .atelier-link{margin-top:8px}
 .fab-cover{position:relative;margin:0;justify-self:center;width:min(100%,350px);overflow:hidden;border:1px solid #947255;border-radius:42% 42% 10px 10px / 26% 26% 10px 10px;background:#241b15}
-.fab-cover video{display:block;width:100%;height:auto;aspect-ratio:9/16;object-fit:cover;object-position:center}
+.fab-cover video{display:block;width:100%;height:auto;aspect-ratio:9/16;object-fit:cover;object-position:center;touch-action:pan-y pinch-zoom}
 .fab-cover figcaption{position:absolute;inset:auto 0 0;padding:28px 16px 12px;background:linear-gradient(transparent,#130e0cdf);color:#f2dfc7;font-size:.75rem;text-align:center}
 @media(max-width:720px){
  .fab-feature{grid-template-columns:1fr}

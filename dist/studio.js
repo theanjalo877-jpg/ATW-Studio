@@ -326,11 +326,45 @@ document.querySelectorAll('.study-banner, .study-card:has(.study-flight)').forEa
 
 {
   const preview = document.querySelector('.fab-cover video');
-  let inView = false;
+  let inView = false, heldPointer = null, heldKey = false;
   function syncFabPreview() {
-    if (inView && canAnimate() && !document.hidden) preview.play().catch(() => {});
-    else preview.pause();
+    if (inView && heldPointer === null && !heldKey && canAnimate() && !document.hidden) {
+      preview.play().catch(() => {});
+    } else {
+      preview.pause();
+    }
   }
+  preview.addEventListener('pointerdown', event => {
+    if (!event.isPrimary || event.button !== 0) return;
+    heldPointer = event.pointerId;
+    preview.setPointerCapture(event.pointerId);
+    syncFabPreview();
+  });
+  function releasePreview(event) {
+    if (event.pointerId !== heldPointer) return;
+    heldPointer = null;
+    syncFabPreview();
+  }
+  preview.addEventListener('pointerup', releasePreview);
+  preview.addEventListener('pointercancel', releasePreview);
+  preview.addEventListener('lostpointercapture', releasePreview);
+  preview.addEventListener('contextmenu', event => event.preventDefault());
+  preview.addEventListener('keydown', event => {
+    if (event.code !== 'Space') return;
+    event.preventDefault();
+    heldKey = true;
+    syncFabPreview();
+  });
+  preview.addEventListener('keyup', event => {
+    if (event.code !== 'Space') return;
+    event.preventDefault();
+    heldKey = false;
+    syncFabPreview();
+  });
+  preview.addEventListener('blur', () => {
+    heldKey = false;
+    syncFabPreview();
+  });
   new IntersectionObserver(([entry]) => {
     inView = entry.isIntersecting;
     syncFabPreview();
