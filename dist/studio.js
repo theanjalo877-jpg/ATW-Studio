@@ -4,6 +4,13 @@ const motion = document.querySelector('#motion');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 let paused = false;
 const canAnimate = () => !paused && !reduced.matches;
+const connection = navigator.connection;
+const limitedConnection = connection?.saveData || ['slow-2g', '2g', '3g'].includes(connection?.effectiveType);
+if (matchMedia('(max-width: 720px)').matches || limitedConnection) {
+  for (const video of document.querySelectorAll('video[data-mobile-src]')) {
+    video.src = video.dataset.mobileSrc;
+  }
+}
 
 {
   const video = stage.querySelector('.stage-video');
@@ -405,4 +412,31 @@ if (!reduced.matches) {
     copy.classList.add('fab-revealing');
   }, {threshold:.35});
   reveal.observe(copy);
+}
+
+{
+  const preview = document.querySelector('.collection-watch');
+  if (!reduced.matches && !limitedConnection) {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      const loadWatch = async () => {
+        try {
+          const response = await fetch(preview.dataset.watchSource);
+          if (!response.ok) return;
+          const watch = new DOMParser().parseFromString(await response.text(), 'text/html');
+          for (const source of [...watch.querySelectorAll('script:not([src])')].slice(0, 2)) {
+            const script = document.createElement('script');
+            script.textContent = source.textContent;
+            document.body.append(script);
+          }
+        } catch {
+          // The watch poster remains visible if the preview cannot load.
+        }
+      };
+      if ('requestIdleCallback' in window) requestIdleCallback(loadWatch);
+      else setTimeout(loadWatch, 1200);
+    });
+    observer.observe(preview);
+  }
 }
