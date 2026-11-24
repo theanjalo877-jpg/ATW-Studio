@@ -25,18 +25,14 @@ def _portfolio_html(mobile, _revision):
     page = page.replace('<script src="studio.js" defer></script>', "")
     page = page.replace('<link rel="stylesheet" href="studio.css">', f"<style>{styles}</style>")
 
-    def embed_image(match):
-        name = match[1]
-        encoded = b64encode((ASSETS / name).read_bytes()).decode("ascii")
-        return f'"data:image/webp;base64,{encoded}"'
-
-    page = re.sub(r'"([a-z0-9-]+\.webp)"', embed_image, page)
+    # Serve the original media separately so it does not block the first render.
+    # Native loading="lazy" and preload="none" can then defer the requests.
+    page = re.sub(r'(?P<attribute>src|poster)="(?P<asset>[a-z0-9/-]+\.webp)"',
+                  r'\g<attribute>="/app/static/\g<asset>"', page)
     page = page.replace('href="emirati/"', 'href="/?experience=emirati" target="_blank" rel="noopener noreferrer"')
-    page = page.replace('"emirati/frames/orbit/000.webp"', '"' + watch_frame_url("orbit/000.webp") + '"')
     for name in ("office-intro.mp4", "qame-film.mp4", "qame-store-film.mp4", "studio-closing.mp4", "fab-preview.mp4"):
         media_name = "qame-store-mobile.mp4" if mobile and name == "qame-store-film.mp4" else name
-        video = b64encode((ASSETS / media_name).read_bytes()).decode("ascii")
-        page = page.replace(f'src="{name}"', f'src="data:video/mp4;base64,{video}"')
+        page = page.replace(f'src="{name}"', f'src="/app/static/{media_name}"')
     watch_page = (ASSETS / "emirati" / "index.html").read_text(encoding="utf-8")
     three, model, *_ = re.findall(r"<script>(.*?)</script>", watch_page, flags=re.S)
     preview_script = f"""
@@ -61,11 +57,6 @@ const watchLoader = new IntersectionObserver(([entry]) => {{
 watchLoader.observe(watchPreview);
 </script>"""
     return page.replace("</body>", f"<script>{script}</script>{preview_script}</body>")
-
-
-def watch_frame_url(path):
-    data = (ASSETS / "emirati" / "frames" / path).read_bytes()
-    return "data:image/webp;base64," + b64encode(data).decode("ascii")
 
 
 @lru_cache(maxsize=1)
