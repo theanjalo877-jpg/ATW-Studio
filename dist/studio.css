@@ -647,10 +647,15 @@ section[id],footer[id]{scroll-margin-top:18px}
   background-position:calc(0px - var(--wave-offset,0px)) center;
   background-clip:text;color:transparent;-webkit-text-stroke:.33px #aa8b68;
  }
+ .nav-wave{
+  --metal:linear-gradient(90deg,#dfbb79 0%,#dfbb79 24%,#9b702f 31%,
+    #252014 37%,#0b0b0c 41%,#17150f 44%,#946727 48%,#efc466 52%,
+    #fff4ce 55%,#ffda87 57%,#c18a38 62%,#dfbb79 72%,#dfbb79 100%);
+ }
  .brand .metal-wave{padding-inline-end:.06em}
  .study-wave{padding:.08em .055em .12em 0;margin:-.08em -.055em -.12em 0;text-shadow:none}
  @media(prefers-reduced-motion:no-preference){
-  .top[data-wave-ready] .nav-wave{animation:header-metal-wave 24s linear infinite}
+  .top[data-wave-ready] .nav-wave{animation:header-metal-wave 18s linear infinite}
   .study-wave{animation:study-metal-wave 18s linear infinite}
   .motion-paused .metal-wave{animation-play-state:paused}
  }
