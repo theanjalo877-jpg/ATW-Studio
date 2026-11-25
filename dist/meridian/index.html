@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Emirati · ATW Horology Concept</title>
+<title>Meridian · L. Calderis · ATW Studio</title>
 <meta name="description" content="A scroll-directed watch launch concept by ATW Studio.">
 <style>@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap');
 :root{color-scheme:dark;--ink:#0a0a0b;--gold:#c8a36c;--paper:#f2ece1;--muted:#b8aea0;font:16px/1.55 'DM Sans',sans-serif;color:var(--paper);background:var(--ink)}
@@ -10,8 +10,8 @@
 .sequence{height:240svh}.hero{height:255svh}.stage{height:100svh;position:sticky;top:0;overflow:hidden;isolation:isolate;background:radial-gradient(ellipse at 63% 51%,#28231e 0%,#151312 31%,#0a0a0b 70%)}.stage::before{content:"";position:absolute;inset:6%;border:1px solid #c8a36c22;pointer-events:none}.stage img,.stage canvas{position:absolute;width:100%;height:100%;inset:0;object-fit:contain}.stage canvas{opacity:0}.stage[data-frame] canvas{opacity:1}.stage[data-frame] img{opacity:0}.label{color:var(--gold);text-transform:uppercase;letter-spacing:.25em;font-size:.875rem;margin:0 0 1rem}.hero-copy,.caption{position:absolute;left:9%;top:50%;transform:translateY(-50%);text-shadow:0 3px 20px #000;pointer-events:none}.hero-copy{opacity:calc(1 - var(--p,0)*1.65);transform:translateY(calc(-50% - var(--p,0)*40px))}h1,h2{font-family:'Instrument Serif',Georgia,serif;font-weight:400;line-height:.93;margin:0}h1{font-size:clamp(5rem,13vw,13rem);letter-spacing:calc(-.03em + var(--p,0)*.18em)}h2{font-size:clamp(3.5rem,9vw,8.5rem)}.hero-copy>p:last-child,.caption>p:last-child,.story>p:last-child,.note{color:var(--muted)}.scroll-note{position:absolute;bottom:8%;left:9%;font-size:.875rem;border-bottom:1px solid var(--gold);padding-bottom:.3em}.caption{top:auto;bottom:11%;transform:translateY(calc((1 - var(--p,.4))*22px));opacity:clamp(.18,calc(var(--p,.4)*3),1)}.caption h2{font-size:clamp(3rem,7vw,6rem)}#movement .stage::after{content:"";position:absolute;inset:65% 0 0;background:linear-gradient(transparent,#0a0a0bce);z-index:0;pointer-events:none}.caption,.hero-copy,.scroll-note,dl{z-index:1}.story,.edition{text-align:center;padding:clamp(85px,15vw,220px) 20px;border-block:1px solid #c8a36c33}.story{background:radial-gradient(ellipse at 50% 40%,#241e17,transparent 73%)}dl{position:absolute;right:9%;bottom:10%;display:grid;gap:12px;margin:0;text-align:right;opacity:clamp(.25,calc(var(--p,.4)*3),1)}dt{font:2rem Georgia,serif;color:var(--gold)}dd{margin:0;color:var(--paper);font-size:.875rem}.price{font-size:1.25rem;color:var(--gold);margin:18px 0 28px}button{font:inherit;color:var(--paper);border:1px solid var(--gold);background:#211a12;padding:12px 23px;cursor:pointer}button:hover{background:#3b2b1b}.note{font-size:.875rem;margin-top:25px}footer{border:0;color:var(--muted)}dialog{width:min(480px,90%);padding:32px;background:#161411;color:var(--paper);border:1px solid var(--gold)}dialog::backdrop{background:#000b}dialog h2{font-size:3rem}dialog .close{float:right;padding:3px 12px}#interest{display:grid;gap:10px}input{width:100%;padding:11px;font:inherit;background:#0a0a0b;color:var(--paper);border:1px solid #8f795d}
 @media(max-width:650px){header{flex-wrap:wrap}.stage img,.stage canvas{object-fit:contain;height:76%;top:12%}.hero-copy{top:21%;left:8%}.hero-copy h1{font-size:clamp(4.7rem,21vw,7rem)}.caption{left:8%;bottom:10%}.engineering .caption{bottom:24%}dl{left:8%;right:8%;bottom:8%;grid-template-columns:repeat(3,1fr);text-align:left}dt{font-size:1.55rem}dd{font-size:.8rem}}
 @media(prefers-reduced-motion:reduce){.sequence,.hero{height:auto}.stage{position:relative;min-height:570px;height:82svh}.hero-copy,.caption,dl{opacity:1}.stage canvas{display:none}}
-.hero h1{animation:emirati-title 1.15s cubic-bezier(.2,.7,.25,1) both}
-@keyframes emirati-title{from{opacity:0;letter-spacing:.12em}to{opacity:1}}
+.hero h1{animation:meridian-title 1.15s cubic-bezier(.2,.7,.25,1) both}
+@keyframes meridian-title{from{opacity:0;letter-spacing:.12em}to{opacity:1}}
 .engineering dl>div{opacity:clamp(.18,calc((var(--p,.5) - var(--threshold,0))*4),1)}
 .engineering dl>div:nth-child(2){--threshold:.17}
 .engineering dl>div:nth-child(3){--threshold:.34}
@@ -50,9 +50,9 @@ button{background:#1b2922}button:hover{background:#304237}
 }
 
 @media(prefers-reduced-motion:no-preference){
- .hero .shot-art,.hero .scroll-note{animation:emirati-enter .85s ease-out both}
+ .hero .shot-art,.hero .scroll-note{animation:meridian-enter .85s ease-out both}
  .hero .scroll-note{animation-delay:.2s}
- @keyframes emirati-enter{from{opacity:0;translate:0 12px}to{opacity:1;translate:0 0}}
+ @keyframes meridian-enter{from{opacity:0;translate:0 12px}to{opacity:1;translate:0 0}}
 }
 
 header>a{display:inline-flex;gap:.6em;align-items:baseline;white-space:nowrap;letter-spacing:.24em}
@@ -62,8 +62,8 @@ header>a{display:inline-flex;gap:.6em;align-items:baseline;white-space:nowrap;le
 .stage[data-gpu] .shot-art canvas{opacity:1}
 .stage[data-gpu] .shot-art img{opacity:0}
 @media(max-width:700px){.hero-copy h1{font-size:clamp(3.5rem,14vw,6rem)}}
-@font-face{font-family:EmiratiDisplay;src:url(data:font/woff;base64,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) format("woff");font-weight:500;font-display:swap}
-.hero-copy h1{font-family:EmiratiDisplay,Georgia,serif;font-weight:500;letter-spacing:.005em;font-size:clamp(3.25rem,7.35vw,8.15rem);position:relative;width:max-content;max-width:100%;white-space:nowrap}
+@font-face{font-family:StudioDisplay;src:url(data:font/woff;base64,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) format("woff");font-weight:500;font-display:swap}
+.hero-copy h1{font-family:StudioDisplay,Georgia,serif;font-weight:500;letter-spacing:.005em;font-size:clamp(3.25rem,7.35vw,8.15rem);position:relative;width:max-content;max-width:100%;white-space:nowrap}
 .engraved-glyph{position:relative;display:inline-block}
 .engraved-glyph::after{content:attr(data-letter);position:absolute;inset:0;color:#fff1bc;opacity:0;pointer-events:none;text-shadow:0 0 .7em #ffce6f}
 .horology-mark.is-lit{color:#f4cd8a}
@@ -71,7 +71,7 @@ header>a{display:inline-flex;gap:.6em;align-items:baseline;white-space:nowrap;le
 @keyframes engraving-shine{0%,100%{opacity:0}45%{opacity:1}}
 @media(max-width:700px){.hero-copy h1{font-size:clamp(3.15rem,13.8vw,6.25rem)}}
 
-.horology-signature{display:inline-block;font:500 clamp(1.7rem,3.1vw,2.9rem)/1 EmiratiDisplay,Georgia,serif;letter-spacing:.11em;color:#f3d49f;margin:0 .28em .18em 0;position:relative}
+.horology-signature{display:inline-block;font:500 clamp(1.7rem,3.1vw,2.9rem)/1 StudioDisplay,Georgia,serif;letter-spacing:.11em;color:#f3d49f;margin:0 .28em .18em 0;position:relative}
 .horology-mark.is-lit .horology-signature::after{content:"";position:absolute;left:0;right:.14em;bottom:-.19em;height:1px;background:linear-gradient(90deg,#f5d896,transparent);transform-origin:left;animation:signature-stroke 1.1s ease-out both}
 @keyframes signature-stroke{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @media(prefers-reduced-motion:reduce){.horology-mark.is-lit .horology-signature::after{animation:none}}
@@ -91,16 +91,16 @@ header>a{display:inline-flex;gap:.6em;align-items:baseline;white-space:nowrap;le
 </style>
 <style>
 .story [lang="ar"]{font-size:1.38em;letter-spacing:0;margin-inline-start:.35em;color:#e8c486}
-.story-reveal{font-family:EmiratiDisplay,Georgia,serif;font-size:clamp(1.12rem,2.1vw,1.54rem)!important;line-height:1.65}
-.story-reveal span{display:inline-block}
+.story-reveal{font-family:StudioDisplay,Georgia,serif;font-size:clamp(1.12rem,2.1vw,1.54rem)!important;line-height:1.65}
+.story-reveal > span{display:inline-block}
 @media(prefers-reduced-motion:no-preference){
-.story-reveal span{opacity:0;clip-path:inset(0 100% 0 0)}
-.story-reveal.is-reading span{animation:ink-reveal .48s cubic-bezier(.2,.68,.2,1) both}
+.story-reveal > span{opacity:0;clip-path:inset(0 100% 0 0)}
+.story-reveal.is-reading > span{animation:ink-reveal .48s cubic-bezier(.2,.68,.2,1) both}
 @keyframes ink-reveal{from{opacity:0;clip-path:inset(0 100% 0 0);transform:translateY(.13em)}to{opacity:1;clip-path:inset(0);transform:none}}
 }
 .edition{position:relative;isolation:isolate;overflow:hidden;min-height:min(780px,90svh);display:grid;place-items:center;background:radial-gradient(ellipse at 50% 80%,#2d3023 0%,#161c17 49%,#101512 76%);border-block:1px solid #9d784f45}
 .closing-copy{position:relative;z-index:1;padding:clamp(56px,11vw,144px) 20px;text-align:center;width:min(100%,54rem);background:radial-gradient(ellipse,#131a16f5 5%,#131a16d9 38%,transparent 70%)}
-.closing-copy h2{font-family:EmiratiDisplay,Georgia,serif;letter-spacing:.075em;margin:.1em 0;font-size:clamp(3.9rem,12vw,10rem);color:#f5e5cb}
+.closing-copy h2{font-family:StudioDisplay,Georgia,serif;letter-spacing:.075em;margin:.1em 0;font-size:clamp(3.9rem,12vw,10rem);color:#f5e5cb}
 </style>
 <style>html{overscroll-behavior-y:none}</style>
 <style>
@@ -109,24 +109,24 @@ header>a.header-signature{display:block;width:69px;line-height:0}
 .signature-light{animation:signature-sweep 24s linear infinite}
 @keyframes signature-sweep{from{transform:translateX(-72px)}to{transform:translateX(78px)}}
 
-.emirati-silk{display:inline-block;color:#f7f5f0;text-shadow:none;position:relative}
+.meridian-silk{display:inline-block;color:#f7f5f0;text-shadow:none;position:relative}
 .hero-copy .sand-title-canvas{position:absolute;inset:auto;z-index:1;max-width:none;max-height:none;opacity:1;pointer-events:none}
 .sand-title-canvas[hidden]{display:none}
-.hero-copy h1[data-assembling] .emirati-silk{opacity:var(--letter-ink,0)}
+.hero-copy h1[data-assembling] .meridian-silk{opacity:var(--letter-ink,0)}
 @supports(background-clip:text){
- .emirati-silk{
+ .meridian-silk{
   background-image:linear-gradient(113deg,
-    #f7f5f0 0%,#f7f5f0 11%,#d2af79 14%,#f7f5f0 16%,#c8102e 23%,
-    #781d31 31%,#f7f5f0 40%,#f7f5f0 48%,#d6b67f 51%,#1b8a4b 55%,
-    #00732f 64%,#161a18 73%,#9d8259 78%,#f7f5f0 84%,#f7f5f0 100%);
+    #f7f5f0 0%,#f7f5f0 11%,#f3e2a9 14%,#f7f5f0 16%,#d4af37 23%,
+    #b7974c 31%,#f7f5f0 40%,#f7f5f0 48%,#f3e2a9 51%,#144535 55%,
+    #144535 64%,#121614 73%,#d4af37 78%,#f3e2a9 84%,#f7f5f0 100%);
   background-size:150% 166%;background-repeat:repeat-x;
   background-position:0 50%;background-clip:text;color:transparent;
   -webkit-text-stroke:.28px #bcac8e96;
  }
  @media(prefers-reduced-motion:no-preference){
-  .emirati-silk{animation:emirati-silk-flow 7.2s linear infinite,emirati-silk-ripple 7.2s ease-in-out infinite}
-  @keyframes emirati-silk-flow{from{background-position-x:0%}to{background-position-x:300%}}
-  @keyframes emirati-silk-ripple{
+  .meridian-silk{animation:meridian-silk-flow 7.2s linear infinite,meridian-silk-ripple 7.2s ease-in-out infinite}
+  @keyframes meridian-silk-flow{from{background-position-x:0%}to{background-position-x:300%}}
+  @keyframes meridian-silk-ripple{
    0%,100%{background-position-y:calc(69% + var(--silk-bias,0%))}
    50%{background-position-y:calc(31% + var(--silk-bias,0%))}
   }
@@ -156,8 +156,9 @@ header>a.header-signature{display:block;width:69px;line-height:0}
 }
 @media(prefers-reduced-motion:reduce){.signature-light{animation:none}}
 </style>
+<link rel="stylesheet" href="../maison.css">
 </head>
-<body>
+<body class="meridian">
 <header><a class="header-signature" href="../" aria-label="ATW. portfolio">
  <svg viewBox="0 0 78 26" aria-hidden="true">
   <defs>
@@ -167,32 +168,32 @@ header>a.header-signature{display:block;width:69px;line-height:0}
   </defs>
   <use href="#signature-lettering" fill="#d4ad72"/>
   <g clip-path="url(#signature-clip)"><rect class="signature-light" width="72" height="26" fill="url(#signature-metal)"/></g>
- </svg></a><nav aria-label="Chapters"><a href="#movement">Movement</a><a href="#engineering">Engineering</a><a href="#edition">ATHAR</a></nav></header>
+ </svg></a><nav aria-label="Chapters"><a href="#movement">Movement</a><a href="#engineering">Engineering</a><a href="#edition" class="calderis-mark">L. CALDERIS</a></nav></header>
 <main>
-<section class="sequence hero" data-shot="orbit" data-count="49" id="emirati">
- <div class="stage"><div class="shot-art"><img src="frames/orbit/poster.webp" alt="ATHAR watch with a black titanium case and gold tourbillon" fetchpriority="high"></div><div class="hero-copy"><p class="label horology-mark" aria-label="ATW Studio"><span aria-hidden="true"><span class="horology-signature"><span class="engraved-glyph" data-letter="A">A</span><span class="engraved-glyph" data-letter="T">T</span><span class="engraved-glyph" data-letter="W">W</span><span class="engraved-glyph" data-letter=".">.</span></span> <span class="engraved-glyph" data-letter="S">S</span><span class="engraved-glyph" data-letter="T">T</span><span class="engraved-glyph" data-letter="U">U</span><span class="engraved-glyph" data-letter="D">D</span><span class="engraved-glyph" data-letter="I">I</span><span class="engraved-glyph" data-letter="O">O</span></span></p><h1><span class="emirati-silk">Emirati</span><sup class="collection-tm">™</sup></h1><p class="label">Collection</p></div><a class="scroll-note" href="#story">Scroll to explore</a><p class="watch-callout"><strong>ANTI-REFLECTIVE SAPPHIRE &amp; EMIRATI HERITAGE DIAL</strong>Precision-milled architectural indices with subtle UAE flag chromatic refraction.</p></div>
+<section class="sequence hero" data-shot="orbit" data-count="49" id="meridian">
+ <div class="stage"><div class="shot-art"><img src="frames/orbit/poster.webp" alt="L. CALDERIS watch with a black titanium case and gold tourbillon" fetchpriority="high"></div><div class="hero-copy"><p class="label horology-mark" aria-label="ATW Studio"><span aria-hidden="true"><span class="horology-signature"><span class="engraved-glyph" data-letter="A">A</span><span class="engraved-glyph" data-letter="T">T</span><span class="engraved-glyph" data-letter="W">W</span><span class="engraved-glyph" data-letter=".">.</span></span> <span class="engraved-glyph" data-letter="S">S</span><span class="engraved-glyph" data-letter="T">T</span><span class="engraved-glyph" data-letter="U">U</span><span class="engraved-glyph" data-letter="D">D</span><span class="engraved-glyph" data-letter="I">I</span><span class="engraved-glyph" data-letter="O">O</span></span></p><h1><span class="meridian-silk">Meridian</span><sup class="collection-tm">™</sup></h1><p class="label">Collection</p></div><a class="scroll-note" href="#story">Scroll to explore</a><p class="watch-callout"><strong>ANTI-REFLECTIVE SAPPHIRE &amp; MERIDIAN DIAL</strong>Precision-milled architectural indices with subtle emerald and champagne refraction.</p></div>
 </section>
-<section id="story" class="story"><p class="label">ATHAR <span lang="ar" dir="rtl">أثر</span></p><h2>An imprint<br>of time.</h2><p>What time leaves behind. ATHAR is a personal interpretation of the Emirates, inspired by Swiss horology.</p></section>
+<section id="story" class="story"><p class="label"><span class="calderis-mark">L. CALDERIS</span></p><h2>An imprint<br>of time.</h2><p>What time leaves behind. <span class="calderis-mark">L. CALDERIS</span> is a personal interpretation of the Emirates, inspired by Swiss horology.</p></section>
 <section class="sequence" data-shot="macro" data-count="37" id="movement">
- <div class="stage"><div class="shot-art"><img src="frames/macro/poster.webp" alt="Close view of the ATHAR dial"></div><div class="caption"><p class="label">Movement</p><h2>Gold in motion</h2><p>The tourbillon at six o’clock.</p></div><p class="watch-callout"><strong>CALIBRE ATW-01 OPENWORK GEAR TRAIN</strong>Hand-finished micro-brass wheels engineered for zero-drag torque transfer.</p></div>
+ <div class="stage"><div class="shot-art"><img src="frames/macro/poster.webp" alt="Close view of the L. CALDERIS dial"></div><div class="caption"><p class="label">Movement</p><h2>Gold in motion</h2><p>The tourbillon at six o’clock.</p></div><p class="watch-callout"><strong>CALIBRE ATW-01 OPENWORK GEAR TRAIN</strong>Hand-finished micro-brass wheels engineered for zero-drag torque transfer.</p></div>
 </section>
 <section class="sequence engineering" data-shot="assembly" data-count="41" id="engineering">
  <div class="stage"><div class="shot-art"><img src="frames/assembly/poster.webp" alt="Separated watch components in an exploded view"></div><div class="caption"><p class="label">Engineering</p><h2>Piece by piece</h2><p id="assembly-stage">Individual elements. One considered expression.</p></div><p class="watch-callout"><strong>GRADE-5 MONOBLOC CHASSIS &amp; TAPERED LINKS</strong>Chamfered edges with dual-brushed satin and mirror-polished bevels.</p></div>
 </section>
 <section class="lifestyle" aria-labelledby="lifestyle-title">
- <div class="lifestyle-copy"><p class="label">ATHAR in the Emirates</p><h2 id="lifestyle-title">A sense of belonging.</h2><p>A personal expression.</p></div>
+ <div class="lifestyle-copy"><p class="label"><span class="calderis-mark">L. CALDERIS</span> in the Emirates</p><h2 id="lifestyle-title">A sense of belonging.</h2><p>A personal expression.</p></div>
  <div class="lifestyle-scenes">
-  <figure class="lifestyle-couple"><img src="athar-together.webp" alt="Two people holding hands at sunset, wearing dark and rose-gold watch concepts" loading="lazy" width="1087" height="1447"><canvas aria-hidden="true"></canvas></figure>
-  <figure class="lifestyle-sand"><img src="athar-sand.webp" alt="A relaxed hand wearing the rose-gold watch above the desert sand" loading="lazy" width="1536" height="1024"><canvas aria-hidden="true"></canvas></figure>
+  <figure class="lifestyle-couple"><img src="calderis-together.webp" alt="Two people holding hands at sunset, wearing dark and rose-gold watch concepts" loading="lazy" width="1087" height="1447"><canvas aria-hidden="true"></canvas></figure>
+  <figure class="lifestyle-sand"><img src="calderis-sand.webp" alt="A relaxed hand wearing the rose-gold watch above the desert sand" loading="lazy" width="1536" height="1024"><canvas aria-hidden="true"></canvas></figure>
  </div>
 </section>
-<section class="edition" id="edition"><div class="closing-copy"><p class="label">The Emirati Collection · By ATW.</p><h2>ATHAR</h2><p class="note">An independent watch design concept by Anjalo Theophine Wilson.</p><a class="enquiry" href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=anjalotwilson%40gmail.com&amp;su=ATHAR%20concept%20enquiry" target="_blank" rel="noopener noreferrer">Enquire about the concept</a></div></section>
+<section class="edition" id="edition"><div class="closing-copy"><p class="label">The Meridian Collection · By ATW.</p><h2 class="calderis-mark">L. CALDERIS</h2><p class="note">An independent watch design concept by Anjalo Theophine Wilson.</p><a class="enquiry" href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=anjalotwilson%40gmail.com&amp;su=L.%20CALDERIS%20concept%20enquiry" target="_blank" rel="noopener noreferrer">Enquire about the concept</a></div></section>
 </main>
 <div class="inspection-hud" role="group" aria-label="Watch inspection controls" hidden>
  <button type="button" id="live-calibre" aria-pressed="true">Live movement</button>
  <button type="button" id="studio-angle" aria-pressed="false" aria-label="Light sweep / Studio angle">Light sweep</button>
 </div>
-<footer><a href="../">ATW Studio</a><a href="#emirati">Back to top</a></footer>
+<footer><a href="../">ATW Studio</a><a href="#meridian">Back to top</a></footer>
 <script>console.warn('Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation'),
 /**
  * @license
@@ -426,16 +427,58 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     ctx.fillRect(i%10===0?-12:-4,-1900,i%10===0?24:8,length);ctx.restore();
   }
   function engrave(){
-    ctx.fillStyle='#f3e1b4';ctx.font='500 222px EmiratiDisplay, Georgia';ctx.fillText('A T W',c,960);
-    ctx.fillStyle='#dec191';ctx.font='500 104px EmiratiDisplay, Georgia';ctx.fillText('ATHAR',1020,2635);
+    ctx.fillStyle='#f3e1b4';ctx.font='500 222px StudioDisplay, Georgia';ctx.fillText('A T W',c,960);
     ctx.fillStyle='#c1aa79';ctx.font='63px Georgia';ctx.fillText('T O U R B I L L O N',c,3620);
   }
   const map=new T.CanvasTexture(texture);map.colorSpace=T.SRGBColorSpace;map.anisotropy=Math.min(8,render.capabilities.getMaxAnisotropy());
-  document.fonts.load('500 104px EmiratiDisplay').catch(()=>{}).then(()=>{engrave();map.needsUpdate=true;});
+  document.fonts.load('500 104px StudioDisplay').catch(()=>{}).then(()=>{engrave();map.needsUpdate=true;});
   const geo=new T.ShapeGeometry(shape,96);
   const pos=geo.attributes.position,uv=geo.attributes.uv;
   for(let i=0;i<pos.count;i++)uv.setXY(i,pos.getX(i)/3.18+.5,pos.getY(i)/3.18+.5);
   mesh(dial,geo,new T.MeshStandardMaterial({map,roughness:.40,metalness:.40,envMapIntensity:.58}));
+  const signatureInk=document.createElement('canvas');
+  signatureInk.width=768;signatureInk.height=112;
+  const signatureBrush=signatureInk.getContext('2d');
+  const signatureMap=new T.CanvasTexture(signatureInk);
+  signatureMap.anisotropy=Math.min(8,render.capabilities.getMaxAnisotropy());
+  function engraveSignature(){
+    const text='L. CALDERIS';
+    signatureBrush.clearRect(0,0,768,112);
+    signatureBrush.font='600 78px Cinzel, "Cormorant Garamond", Georgia, serif';
+    signatureBrush.textBaseline='middle';
+    signatureBrush.fillStyle='#fff';
+    const tracking=8;
+    const width=[...text].reduce((sum,letter)=>sum+signatureBrush.measureText(letter).width+tracking,0)-tracking;
+    let x=(768-width)/2;
+    for(const letter of text){
+      signatureBrush.fillText(letter,x,59);
+      x+=signatureBrush.measureText(letter).width+tracking;
+    }
+    signatureMap.needsUpdate=true;
+  }
+  engraveSignature();
+  const signatureReady=document.fonts.load('600 78px Cinzel').catch(()=>{}).then(engraveSignature);
+  const signatureUniforms={ink:{value:signatureMap},reveal:{value:0},sweep:{value:-1}};
+  const signatureFinish=new T.ShaderMaterial({
+    transparent:true,depthWrite:false,uniforms:signatureUniforms,
+    vertexShader:`varying vec2 engravingUV;
+      void main(){engravingUV=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+    fragmentShader:`varying vec2 engravingUV;uniform sampler2D ink;uniform float reveal;uniform float sweep;
+      void main(){
+        vec2 p=engravingUV;
+        float mask=texture2D(ink,p).a*(1.0-smoothstep(reveal-.15,reveal,p.x));
+        float grain=sin(p.y*280.0)*.022;
+        float glint=pow(max(0.0,1.0-abs(p.x+.27*(p.y-.5)-sweep)),20.0);
+        vec3 gold=mix(vec3(.58,.43,.24),vec3(.91,.78,.52),p.y)+grain;
+        gl_FragColor=vec4(mix(gold,vec3(1.0,.96,.78),glint*.72),mask);
+      }`,
+  });
+  const signature=mesh(dial,new T.PlaneGeometry(1.24,1.24*112/768),signatureFinish,0,.64,.007);
+  signature.renderOrder=2;
+  function lightSignature(age,seconds,tilt){
+    signatureUniforms.reveal.value=reduce.matches?1.2:1.2*(1-Math.pow(1-Math.min(age/1.55,1),3));
+    signatureUniforms.sweep.value=reduce.matches?-1:((seconds*.165+.18)%1)*1.72-.38+tilt*.25;
+  }
   const indexShape=new T.Shape();
   indexShape.moveTo(-.010,-.054);indexShape.lineTo(.010,-.054);
   indexShape.lineTo(.014,.054);indexShape.lineTo(-.014,.054);indexShape.closePath();
@@ -514,7 +557,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         float rimBand=smoothstep(.72,.98,rim);
         float silkArc=pow(max(0.0,1.0-abs(reflection.x-sweep+.31*reflection.y)),12.0);
         float fringe=sin(10.0*(reflection.y+reflection.x*.22)+sweep*4.0);
-        vec3 silk=mix(vec3(.784,.063,.180),vec3(.0,.451,.184),smoothstep(-.55,.55,fringe));
+        vec3 silk=mix(vec3(.74,.55,.24),vec3(.079,.27,.208),smoothstep(-.55,.55,fringe));
         silk=mix(silk,vec3(.969,.961,.941),pow(1.0-abs(fringe),4.0)*.78);
         float accent=rimBand*silkArc*heritage;
         vec3 surface=mix(coating,vec3(.98,.92,.77),ribbon);
@@ -548,7 +591,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   if(preview){
     const card=preview.parentElement.querySelector('.collection-glimpse');
     let visible=false, frame=0, last=0, elapsed=0, contextLost=false;
-    let width=0,height=0,ratio=0,speed=1;
+    let width=0,height=0,ratio=0,speed=1,signatureAge=0;
     const period=28000;
     const canHover=matchMedia("(hover: hover)");
     bridges.visible=openBridge.visible=false;
@@ -558,6 +601,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     function draw(){
       if(contextLost)return;
       const angle=elapsed*Math.PI*2/period;
+      lightSignature(signatureAge,elapsed/1000,Math.sin(angle));
       model.rotation.set(.16,-.31+angle,0);
       keyLight.position.set(-4+Math.sin(angle)*3.8,6,6);
       sapphire.uniforms.sweep.value=-.13+.45*Math.sin(angle);
@@ -587,6 +631,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       const delta=last?Math.min(now-last,100):0;
       speed+=((hovering?.58:1)-speed)*(1-Math.exp(-delta/420));
       elapsed=(elapsed+delta*speed)%period;
+      signatureAge+=delta/1000;
       last=now;
       draw();
       frame=requestAnimationFrame(play);
@@ -610,6 +655,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       contextLost=false;width=0;fit();sync();
     });
     fit();
+    signatureReady.then(draw);
     return;
   }
 
@@ -622,7 +668,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   const visibleArt=new Set();
   let active=-1,progress=0,x=0,y=0,px=0,py=0,frame=0,width=0,height=0;
   let ratio=Math.min(window.devicePixelRatio||1,2),slow=0,last=0,layout=[];
-  let running=true,inspect=false,contextLost=false,mechanicalTime=0,sweep=0;
+  let running=true,inspect=false,contextLost=false,mechanicalTime=0,sweep=0,signatureAge=0,lightTime=0;
   let touchPointer=null,hovering=false,heritage=0;
   const clamp=T.MathUtils.clamp;
   const smooth=p=>p*p*(3-2*p);
@@ -705,7 +751,10 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     if(chapter<0){showChapter(-1);return;}
     const {stage}=viewport[chapter],rect=layout[chapter];
     const target=clamp((top-rect.top)/rect.travel,0,1);
-    if(active!==chapter){progress=target;showChapter(chapter);last=0;}
+    if(active!==chapter){
+      if(chapter===1)signatureAge=0;
+      progress=target;showChapter(chapter);last=0;
+    }
     const delta=last?Math.min(now-last,50):16.67;last=now;
     if(delta>28)slow++;else slow=Math.max(0,slow-1);
     if(slow>20&&ratio>1){ratio=Math.max(1,ratio-.25);slow=0;measure();}
@@ -717,11 +766,20 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     }
     const expansion=chapter===2?1-smooth(progress):chapter===1?.48*ease(.17,.81,progress):0;
     if(chapter===2){
-      const label=progress<.24?'Individual elements. One considered expression.':progress<.84?'A closer look, layer by layer.':'Together, ATHAR.';
+      const label=progress<.24?'Individual elements. One considered expression.':progress<.84?'A closer look, layer by layer.':'The L. CALDERIS, assembled.';
       const caption=stage.querySelector('#assembly-stage');
-      if(caption.textContent!==label)caption.textContent=label;
+      if(caption.textContent!==label){
+        if(label==='The L. CALDERIS, assembled.'){
+          const mark=document.createElement('span');
+          mark.className='calderis-mark';mark.textContent='L. CALDERIS';
+          caption.replaceChildren('The ',mark,', assembled.');
+        }else caption.textContent=label;
+      }
     }
     if(running)mechanicalTime+=delta/1000;
+    signatureAge+=delta/1000;
+    lightTime+=delta/1000;
+    lightSignature(signatureAge,lightTime,px+progress*.55);
     const t=mechanicalTime;
     for(const {g,base,spread} of layers)g.position.copy(base).addScaledVector(spread,expansion);
     // Four complete balance oscillations per second, or eight half swings per second.
@@ -758,7 +816,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       ease(.12,.35,progress)*(1-ease(.79,.99,progress)):1-ease(.19,.53,progress);
     const callout=alpha.toFixed(3);
     if(stage.style.getPropertyValue('--callout')!==callout)stage.style.setProperty('--callout',callout);
-    if(running||Math.abs(heritageTarget-heritage)>.004||Math.abs(target-progress)>.001||Math.abs(x-px)+Math.abs(y-py)>.003||Math.abs(sweepTarget-sweep)>.003)wake();
+    if(running||signatureAge<1.55||Math.abs(heritageTarget-heritage)>.004||Math.abs(target-progress)>.001||Math.abs(x-px)+Math.abs(y-py)>.003||Math.abs(sweepTarget-sweep)>.003)wake();
     else last=0;
   }
   function sync(){
@@ -782,6 +840,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   document.addEventListener('visibilitychange',sync);
   reduce.addEventListener('change',sync);
   cacheLayout();
+  signatureReady.then(wake);
 })();
 </script><script>/*!
  * GSAP 3.13.0
@@ -805,4 +864,4 @@ gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
     .from('.hero-copy > p:last-child', {opacity:0,y:8,duration:.85,clearProps:'opacity,transform'},'-=.5');
   gsap.from('header > a',{opacity:0,y:8,duration:1.65,clearProps:'opacity,transform'});
 });
-</script><script src="sand.js"></script></body></html>
+</script><script src="sand.js"></script><script src="../maison.js"></script></body></html>

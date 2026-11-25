@@ -109,13 +109,17 @@
       subtitle.classList.add('story-reveal');
       subtitle.setAttribute('aria-label', copy);
       let delay = 0;
-      subtitle.replaceChildren(...copy.split(/(\s+)/).map(word => {
-        if (!word.trim()) return document.createTextNode(word);
+      const words = [...subtitle.childNodes].flatMap(node =>
+        node.nodeType === Node.TEXT_NODE ? node.textContent.split(/(\s+)/) : [node]
+      );
+      subtitle.replaceChildren(...words.map(word => {
+        const text = typeof word === 'string' ? word : word.textContent;
+        if (!text.trim()) return document.createTextNode(text);
         const span = document.createElement('span');
-        span.textContent = word;
+        span.append(word);
         span.setAttribute('aria-hidden', 'true');
         span.style.animationDelay = `${delay}ms`;
-        delay += Math.min(word.length, 9) * 22 + 30;
+        delay += Math.min(text.length, 9) * 22 + 30;
         return span;
       }));
       reader.observe(subtitle);
@@ -124,8 +128,8 @@
 })();
 
 (() => {
-  const headline = document.querySelector('#emirati h1');
-  const lettering = headline?.querySelector('.emirati-silk');
+  const headline = document.querySelector('#meridian h1');
+  const lettering = headline?.querySelector('.meridian-silk');
   if (!lettering) return;
 
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -280,7 +284,7 @@
       biasFrame = 0;
     }
   }).observe(headline);
-  const hero = document.querySelector('#emirati');
+  const hero = document.querySelector('#meridian');
   hero.addEventListener('pointermove', event => {
     if (event.pointerType === 'touch') return;
     cursorBias = (event.clientY / Math.max(1, innerHeight) - .5) * 12;
@@ -293,7 +297,7 @@
   document.addEventListener('visibilitychange', () => { if (document.hidden) settle(); });
   reduced.addEventListener('change', () => { if (reduced.matches) settle(); });
   window.addEventListener('resize', settle, {passive:true});
-  document.fonts.load('500 64px EmiratiDisplay').catch(() => {}).then(() => {
+  document.fonts.load('500 64px Cormorant Garamond').catch(() => {}).then(() => {
     fontReady = true;
     assembleAtTop();
   });

@@ -22,7 +22,7 @@ S.render.resolution_percentage=100
 S.render.image_settings.file_format='PNG'
 S.render.film_transparent=True
 S.display.render_aa='FXAA'
-root=b.data.objects.new('Emirati',None)
+root=b.data.objects.new('Meridian',None)
 S.collection.objects.link(root)
 parts=[]
 def mat(name,rgb):

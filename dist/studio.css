@@ -196,10 +196,7 @@ section[id],footer[id]{scroll-margin-top:18px}
 .stage[data-phase="day"] .office-day{visibility:visible}
 .collection-nav sup,.collection-label sup{font-size:.63em;margin-inline-start:.12em}
 .collection-copy strong{display:flex;align-items:baseline;gap:.45em}
-.athar-arabic{display:inline-block;font-family:"Noto Naskh Arabic",Amiri,serif;font-size:1em;font-weight:600;line-height:1;color:#ead0a1}
 @media(prefers-reduced-motion:no-preference){
- .athar-arabic{animation:athar-ink 7s ease-in-out infinite}
- @keyframes athar-ink{0%,100%{clip-path:inset(0 0 0 100%);opacity:.25}22%,81%{clip-path:inset(0);opacity:1}}
 }
 .hero-copy .hero-tagline{font:500 clamp(1.3rem,2.15cqw,2.25rem)/1 StudioSerif,Georgia,serif;letter-spacing:-.025em}
 .contact-guide{position:absolute;right:calc(100% - 5px);bottom:0;width:54px;height:68px;pointer-events:none;filter:drop-shadow(0 3px 5px #0c171796)}
@@ -376,10 +373,8 @@ section[id],footer[id]{scroll-margin-top:18px}
 .brand-projects sup{position:absolute;right:0;top:-.48em;font:600 .20em/1 var(--sans);letter-spacing:0}
 .brand-projects span{color:#eadccd;font-size:.87rem}
 .brand-qame img{object-position:center 55%}.brand-qame strong{font-family:StudioSerif,Georgia,serif}
-.brand-athar strong{font-family:"Noto Naskh Arabic",Amiri,serif;letter-spacing:0}
-.brand-athar sup{right:auto;left:0}
-.brand-athar a{background:radial-gradient(ellipse at 68% 50%,rgba(200,169,110,.06),transparent 64%) #0b0e0c}
-.brand-athar img{object-fit:contain;object-position:70% center}
+.brand-calderis a{background:radial-gradient(ellipse at 68% 50%,rgba(200,169,110,.06),transparent 64%) #0b0e0c}
+.brand-calderis img{object-fit:contain;object-position:70% center}
 .brand-lysse img{object-position:50% 40%}.brand-lysse strong{font-family:Allura,Georgia,cursive}
 .brand-lysse sup{top:-.8em}
 .brand-lysse strong{font-size:clamp(3.4rem,6vw,5.4rem);line-height:.79}
@@ -669,9 +664,9 @@ section[id],footer[id]{scroll-margin-top:18px}
 .collection-heritage{display:inline-block;color:#f7f5f0}
 @supports(background-clip:text){
  .collection-heritage{
-  background-image:linear-gradient(113deg,#f7f5f0 4%,#f7f5f0 12%,#d6b67f 16%,
-    #c8102e 25%,#f7f5f0 42%,#f7f5f0 49%,#1b8a4b 57%,#00732f 65%,
-    #161a18 74%,#d6b67f 81%,#f7f5f0 89%,#f7f5f0 100%);
+  background-image:linear-gradient(113deg,#f7f5f0 4%,#f7f5f0 12%,#f3e2a9 22%,
+    #d4af37 27%,#f7f5f0 41%,#f3e2a9 49%,#144535 58%,#144535 65%,
+    #121614 73%,#d4af37 81%,#f3e2a9 89%,#f7f5f0 100%);
   background-clip:text;color:transparent;background-repeat:repeat-x;background-size:150% 166%;
   -webkit-text-stroke:.22px #b9a582a0;
  }
