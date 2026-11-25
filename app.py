@@ -96,6 +96,9 @@ def emirati_html():
     for name in ("athar-together.webp", "athar-sand.webp"):
         encoded = b64encode((ASSETS / "emirati" / name).read_bytes()).decode("ascii")
         page = page.replace(f'src="{name}"', f'src="data:image/webp;base64,{encoded}"')
+    for chapter in ("orbit", "macro", "assembly"):
+        path = f"{chapter}/poster.webp"
+        page = page.replace(f'src="frames/{path}"', f'src="{watch_frame_url(path)}"')
     page = page.replace('<script src="sand.js"></script>', f'<script>{(ASSETS / "emirati" / "sand.js").read_text(encoding="utf-8")}</script>')
     return page.replace('href="../"', 'href="/" target="_blank" rel="noopener noreferrer"')
 
@@ -103,6 +106,10 @@ def emirati_html():
 st.set_page_config(page_title="ATW Studio · Anjalo Theophine Wilson", layout="wide")
 st.html("""
 <style>
+html,body,.stApp,[data-testid="stAppViewContainer"],[data-testid="stMain"],
+[data-testid="stMainBlockContainer"],.st-key-portfolio_viewport{
+    background:#0b0e0c;
+}
 [data-testid="stMainBlockContainer"]{max-width:none;padding:0}
 #MainMenu,[data-testid="stHeader"],[data-testid="stToolbar"],[data-testid="stFooter"]{display:none}
 html:has(.st-key-portfolio_viewport iframe),
@@ -119,6 +126,7 @@ body:has(.st-key-portfolio_viewport iframe),
     height:100vh!important;
     height:100dvh!important;
     border:0;
+    background:#0b0e0c;
 }
 </style>
 """)

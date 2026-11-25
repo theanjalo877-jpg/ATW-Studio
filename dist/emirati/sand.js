@@ -137,7 +137,24 @@
   if (!ink) return;
   headline.append(canvas);
 
-  const duration = 1600;
+  const duration = 2400;
+  const fadeIn = 250;
+  // Sample cubic-bezier(.16, 1, .3, 1) once, with time as the input axis.
+  const drift = Float32Array.from({length:257}, (_, index) => {
+    const time = index / 256;
+    let lo = 0, hi = 1;
+    for (let i = 0; i < 12; i++) {
+      const t = (lo + hi) / 2, inv = 1 - t;
+      const x = 3 * inv * inv * t * .16 + 3 * inv * t * t * .3 + t ** 3;
+      if (x < time) lo = t;
+      else hi = t;
+    }
+    return 1 - (1 - (lo + hi) / 2) ** 3;
+  });
+  const smooth = value => {
+    const t = Math.max(0, Math.min(value, 1));
+    return t * t * (3 - 2 * t);
+  };
   const palette = ['#fce4af', '#e9c687', '#c4935c', '#9c663e'];
   let frame = 0, armed = false, cursorBias = 0, biasFrame = 0;
 
@@ -149,7 +166,7 @@
     headline.style.removeProperty('--letter-ink');
   }
 
-  function assemble() {
+  function assemble(replay = false) {
     if (frame || reduced.matches || document.hidden) return;
     const style = getComputedStyle(lettering);
     const width = lettering.offsetWidth, height = lettering.offsetHeight;
@@ -181,7 +198,8 @@
           sx: tx - inset * (.65 + Math.random() * 1.35),
           sy: ty + (Math.random() - .47) * height * .68,
           arc: height * (.19 + Math.random() * .53),
-          delay: (tx - inset) / width * .20 + Math.random() * .11,
+          delay: (tx - inset) / width * .23 + Math.random() * .08,
+          travel: .57 + Math.random() * .11,
           size: .58 + Math.random() * .83,
         });
       }
@@ -195,22 +213,30 @@
     ink.setTransform(ratio, 0, 0, ratio, 0, 0);
     canvas.hidden = false;
     headline.dataset.assembling = '';
-    const start = performance.now();
+    const lead = replay ? 140 : 0;
+    const start = performance.now() + lead;
+    headline.style.setProperty('--letter-ink', replay ? '1' : '0');
 
     function paint(now) {
       const progress = (now - start) / duration;
+      if (progress < 0) {
+        headline.style.setProperty('--letter-ink', smooth((start - now) / lead).toFixed(3));
+        frame = requestAnimationFrame(paint);
+        return;
+      }
       if (progress >= 1) { settle(); return; }
-      const reveal = Math.max(0, (progress - .68) / .32);
-      const letterInk = reveal * reveal * (3 - 2 * reveal);
+      const letterInk = smooth((progress - .60) / .40);
       headline.style.setProperty('--letter-ink', letterInk.toFixed(3));
       ink.clearRect(0, 0, fieldWidth, fieldHeight);
-      ink.globalAlpha = Math.min(1, progress * 12) * (1 - letterInk);
+      const alpha = smooth(progress * duration / fadeIn) * (1 - letterInk);
       grains.forEach((group, index) => {
         ink.fillStyle = palette[index];
         for (const grain of group) {
           if (progress < grain.delay) continue;
-          const time = (progress - grain.delay) / (1 - grain.delay);
-          const eased = 1 - 2 ** (-9 * time);
+          const travel = progress - grain.delay;
+          const time = Math.min(1, travel / grain.travel);
+          const eased = drift[Math.round(time * 256)];
+          ink.globalAlpha = alpha * smooth(travel * duration / fadeIn);
           const x = grain.sx + (grain.tx - grain.sx) * eased;
           const y = grain.sy + (grain.ty - grain.sy) * eased - grain.arc * 4 * eased * (1 - eased);
           ink.fillRect(x, y, grain.size, grain.size);
@@ -236,7 +262,7 @@
     if (scrollY > Math.min(250, innerHeight * .34)) armed = true;
     if (armed && scrollY <= 24) {
       armed = false;
-      assemble();
+      assemble(true);
     }
   }, {passive:true});
   const hero = document.querySelector('#emirati');
