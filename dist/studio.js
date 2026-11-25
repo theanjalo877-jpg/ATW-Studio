@@ -26,6 +26,21 @@ const canAnimate = () => !paused && !reduced.matches;
 }
 
 {
+  const wordmark = document.querySelector('.closing-wordmark');
+  const mark = wordmark.querySelector('strong');
+  const letter = document.createRange();
+  letter.setStart(mark.firstChild, 1);
+  letter.setEnd(mark.firstChild, 2);
+  function centerStudio() {
+    const word = mark.getBoundingClientRect();
+    const t = letter.getBoundingClientRect();
+    wordmark.style.setProperty('--studio-offset', ((t.left + t.right - word.left - word.right) / 2) + 'px');
+  }
+  new ResizeObserver(centerStudio).observe(mark);
+  document.fonts.ready.then(centerStudio);
+}
+
+{
   const video = stage.querySelector('.stage-video');
   const nameLetters = [...stage.querySelectorAll('.office-name > span')].flatMap(word => {
     const letters = Array.from(word.textContent, character => {

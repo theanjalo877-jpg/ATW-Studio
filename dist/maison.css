@@ -94,10 +94,6 @@ body.portfolio,body.meridian{background:var(--obsidian);color:var(--pearl);font:
  background:var(--surface);color:var(--pearl);border:.5px solid var(--maison-active)
 }
 .portfolio .closing-film{background:var(--obsidian)}
-.portfolio .closing-wordmark :is(strong,span){
- font-family:var(--maison-mark);letter-spacing:.2em
-}
-.portfolio .closing-wordmark strong{font-size:clamp(2.7rem,7vw,7rem)}
 .portfolio .stage .hero-copy :is(h1,.hero-tagline){font-family:var(--maison-serif)}
 .portfolio :is(.study-card a,.text-link){
  display:inline-block;width:fit-content;padding:.4rem .78rem;text-decoration:none;
@@ -107,4 +103,33 @@ body.portfolio,body.meridian{background:var(--obsidian);color:var(--pearl);font:
 }
 .portfolio :is(.study-card a,.text-link):is(:hover,:focus-visible){
  border-color:var(--maison-active);background-position:0 center
+}
+
+
+.portfolio .prototype-heading h3{
+ font-size:clamp(2.85rem,6.1vw,6.25rem);line-height:.98;letter-spacing:-.035em;margin:.2em 0 .22em
+}
+.portfolio .prototype-heading p:not(.concept-eyebrow){max-width:54ch;color:var(--stone)}
+.portfolio :is(.project-clearview,.project-fleetrelay) .pill{
+ background-image:linear-gradient(112deg,transparent 32%,#e8d3a345 49%,transparent 66%);
+}
+.portfolio .project-clearview .bars i{
+ transform-origin:bottom;background:linear-gradient(#b2d6b6,#24765c)
+}
+.portfolio .dispatch-pulse{opacity:0;filter:drop-shadow(0 0 4px #edc572)}
+@media(prefers-reduced-motion:no-preference){
+ .portfolio .project-clearview .bars i{
+  transition:transform .65s var(--maison-ease)
+ }
+ .portfolio .project-clearview .bars i:nth-child(2n){transition-delay:40ms}
+ .portfolio .project-clearview:is(:hover,:focus-within) .bars i{transform:scaleY(1.11)}
+ .portfolio .project-fleetrelay.project-visible:is(:hover,:focus-within) .dispatch-pulse{
+  animation:atelier-dispatch-pulse 2.2s var(--maison-ease) infinite
+ }
+ @keyframes atelier-dispatch-pulse{
+  0%{stroke-dashoffset:8;opacity:0}
+  16%{opacity:.85}
+  82%{opacity:.68}
+  100%{stroke-dashoffset:-100;opacity:0}
+ }
 }
