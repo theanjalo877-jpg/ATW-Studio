@@ -157,6 +157,7 @@
   };
   const palette = ['#fce4af', '#e9c687', '#c4935c', '#9c663e'];
   let frame = 0, armed = false, cursorBias = 0, biasFrame = 0;
+  let visible = false, fontReady = false, initial = true;
 
   function settle() {
     cancelAnimationFrame(frame);
@@ -167,7 +168,7 @@
   }
 
   function assemble(replay = false) {
-    if (frame || reduced.matches || document.hidden) return;
+    if (frame || !visible || reduced.matches || document.hidden) return;
     const style = getComputedStyle(lettering);
     const width = lettering.offsetWidth, height = lettering.offsetHeight;
     if (!width || !height) return;
@@ -254,17 +255,31 @@
   }
 
   function queueBias() {
-    if (!biasFrame && !reduced.matches) biasFrame = requestAnimationFrame(updateBias);
+    if (visible && !biasFrame && !reduced.matches) biasFrame = requestAnimationFrame(updateBias);
+  }
+
+  function assembleAtTop() {
+    if (!visible || !fontReady || scrollY > 24 || (!initial && !armed)) return;
+    assemble(!initial);
+    initial = armed = false;
   }
 
   window.addEventListener('scroll', () => {
     queueBias();
     if (scrollY > Math.min(250, innerHeight * .34)) armed = true;
-    if (armed && scrollY <= 24) {
-      armed = false;
-      assemble(true);
-    }
+    assembleAtTop();
   }, {passive:true});
+  new IntersectionObserver(([entry]) => {
+    visible = entry.isIntersecting;
+    if (visible) {
+      assembleAtTop();
+      queueBias();
+    } else {
+      settle();
+      cancelAnimationFrame(biasFrame);
+      biasFrame = 0;
+    }
+  }).observe(headline);
   const hero = document.querySelector('#emirati');
   hero.addEventListener('pointermove', event => {
     if (event.pointerType === 'touch') return;
@@ -279,6 +294,7 @@
   reduced.addEventListener('change', () => { if (reduced.matches) settle(); });
   window.addEventListener('resize', settle, {passive:true});
   document.fonts.load('500 64px EmiratiDisplay').catch(() => {}).then(() => {
-    if (scrollY <= 24) assemble();
+    fontReady = true;
+    assembleAtTop();
   });
 })();

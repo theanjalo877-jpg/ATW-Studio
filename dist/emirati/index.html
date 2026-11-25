@@ -592,6 +592,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   const viewport=sections.map(section=>({
     section,stage:section.querySelector('.stage'),art:section.querySelector('.shot-art'),
   }));
+  const visibleArt=new Set();
   let active=-1,progress=0,x=0,y=0,px=0,py=0,frame=0,width=0,height=0;
   let ratio=Math.min(window.devicePixelRatio||1,2),slow=0,last=0,layout=[];
   let running=true,inspect=false,contextLost=false,mechanicalTime=0,sweep=0;
@@ -602,7 +603,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   const damp=(a,b,delta)=>a+(b-a)*(1-Math.pow(.84,delta/16.67));
 
   function wake(){
-    if(!frame&&!document.hidden&&!reduce.matches&&!contextLost)frame=requestAnimationFrame(step);
+    if(visibleArt.size&&!frame&&!document.hidden&&!reduce.matches&&!contextLost)frame=requestAnimationFrame(step);
   }
   function measure(){
     if(active<0)return;
@@ -672,7 +673,8 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   function step(now){
     frame=0;
     const top=scrollY;
-    const chapter=layout.findIndex(r=>r.top-top<innerHeight*.72&&r.top+r.height-top>innerHeight*.25);
+    const chapter=layout.findIndex((r,i)=>visibleArt.has(viewport[i].art)&&
+      r.top-top<innerHeight*.72&&r.top+r.height-top>innerHeight*.25);
     if(chapter<0){showChapter(-1);return;}
     const {stage}=viewport[chapter],rect=layout[chapter];
     const target=clamp((top-rect.top)/rect.travel,0,1);
@@ -737,6 +739,17 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     if(reduce.matches||document.hidden||contextLost)showChapter(-1);
     else wake();
   }
+  const visibilityObserver=new IntersectionObserver(entries=>{
+    for(const {target,isIntersecting} of entries){
+      if(isIntersecting)visibleArt.add(target);
+      else visibleArt.delete(target);
+    }
+    if(!visibleArt.size){
+      cancelAnimationFrame(frame);frame=0;
+      showChapter(-1);
+    }else wake();
+  });
+  viewport.forEach(({art})=>visibilityObserver.observe(art));
   canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();contextLost=true;sync();});
   canvas.addEventListener('webglcontextrestored',()=>{contextLost=false;sync();});
   document.addEventListener('visibilitychange',sync);

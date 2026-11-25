@@ -41,8 +41,8 @@ def portfolio_html(mobile=False):
     return _portfolio_html(portfolio_video_urls(mobile), revision)
 
 
-@lru_cache(maxsize=2)
-def _portfolio_html(video_urls, _revision):
+@st.cache_data(max_entries=4, show_spinner=False)
+def _portfolio_html(video_urls, revision):
     page = (ASSETS / "index.html").read_text(encoding="utf-8")
     styles = (ASSETS / "studio.css").read_text(encoding="utf-8")
     script = (ASSETS / "studio.js").read_text(encoding="utf-8")
@@ -94,8 +94,16 @@ def watch_frame_url(path):
     return "data:image/webp;base64," + b64encode(data).decode("ascii")
 
 
-@lru_cache(maxsize=1)
 def emirati_html():
+    assets = ASSETS / "emirati"
+    files = (*assets.glob("*.webp"), *assets.glob("frames/*/poster.webp"),
+             assets / "index.html", assets / "sand.js")
+    revision = tuple((str(path), path.stat().st_mtime_ns) for path in sorted(files))
+    return _emirati_html(revision)
+
+
+@st.cache_data(max_entries=2, show_spinner=False)
+def _emirati_html(revision):
     page = (ASSETS / "emirati" / "index.html").read_text(encoding="utf-8")
     for name in ("athar-together.webp", "athar-sand.webp"):
         encoded = b64encode((ASSETS / "emirati" / name).read_bytes()).decode("ascii")
