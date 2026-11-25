@@ -2,3 +2,7 @@
 base = "dark"
 backgroundColor = "#0B0E0C"
 secondaryBackgroundColor = "#0B0E0C"
+
+[server]
+enableWebsocketCompression = true
+enableStaticServing = true
