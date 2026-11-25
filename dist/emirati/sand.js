@@ -122,3 +122,137 @@
     }
   }
 })();
+
+(() => {
+  const headline = document.querySelector('#emirati h1');
+  const lettering = headline?.querySelector('.emirati-silk');
+  if (!lettering) return;
+
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const canvas = document.createElement('canvas');
+  canvas.className = 'sand-title-canvas';
+  canvas.setAttribute('aria-hidden', 'true');
+  canvas.hidden = true;
+  const ink = canvas.getContext('2d', {willReadFrequently:true});
+  if (!ink) return;
+  headline.append(canvas);
+
+  const duration = 1600;
+  const palette = ['#fce4af', '#e9c687', '#c4935c', '#9c663e'];
+  let frame = 0, armed = false, cursorBias = 0, biasFrame = 0;
+
+  function settle() {
+    cancelAnimationFrame(frame);
+    frame = 0;
+    canvas.hidden = true;
+    headline.removeAttribute('data-assembling');
+    headline.style.removeProperty('--letter-ink');
+  }
+
+  function assemble() {
+    if (frame || reduced.matches || document.hidden) return;
+    const style = getComputedStyle(lettering);
+    const width = lettering.offsetWidth, height = lettering.offsetHeight;
+    if (!width || !height) return;
+    const inset = Math.ceil(width * .32);
+    const fieldWidth = width + inset + 10, fieldHeight = height + 28;
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    // Read the actual display font at CSS resolution. The playback canvas uses DPR.
+    canvas.width = fieldWidth;
+    canvas.height = fieldHeight;
+    ink.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    if ('letterSpacing' in ink) ink.letterSpacing = style.letterSpacing;
+    const word = lettering.textContent.trim();
+    const metrics = ink.measureText(word);
+    const ascent = metrics.fontBoundingBoxAscent ?? metrics.actualBoundingBoxAscent;
+    const descent = metrics.fontBoundingBoxDescent ?? metrics.actualBoundingBoxDescent;
+    const baseline = 14 + (height - ascent - descent) / 2 + ascent;
+    ink.fillText(word, inset, baseline);
+    const mask = ink.getImageData(0, 0, fieldWidth, fieldHeight).data;
+    const stride = Math.max(2, Math.round(Math.sqrt(width * height / 4500)));
+    const grains = palette.map(() => []);
+    for (let row = 0; row < fieldHeight; row += stride) {
+      for (let col = inset; col < fieldWidth; col += stride) {
+        const tx = col + Math.floor(Math.random() * stride);
+        const ty = row + Math.floor(Math.random() * stride);
+        if (tx >= fieldWidth || ty >= fieldHeight || mask[(ty * fieldWidth + tx) * 4 + 3] < 166) continue;
+        grains[Math.floor(Math.random() * grains.length)].push({
+          tx, ty,
+          sx: tx - inset * (.65 + Math.random() * 1.35),
+          sy: ty + (Math.random() - .47) * height * .68,
+          arc: height * (.19 + Math.random() * .53),
+          delay: (tx - inset) / width * .20 + Math.random() * .11,
+          size: .58 + Math.random() * .83,
+        });
+      }
+    }
+    if (!grains.some(group => group.length)) return;
+    canvas.width = Math.ceil(fieldWidth * ratio);
+    canvas.height = Math.ceil(fieldHeight * ratio);
+    Object.assign(canvas.style, {
+      left: -inset + 'px', top: '-14px', width: fieldWidth + 'px', height: fieldHeight + 'px',
+    });
+    ink.setTransform(ratio, 0, 0, ratio, 0, 0);
+    canvas.hidden = false;
+    headline.dataset.assembling = '';
+    const start = performance.now();
+
+    function paint(now) {
+      const progress = (now - start) / duration;
+      if (progress >= 1) { settle(); return; }
+      const reveal = Math.max(0, (progress - .68) / .32);
+      const letterInk = reveal * reveal * (3 - 2 * reveal);
+      headline.style.setProperty('--letter-ink', letterInk.toFixed(3));
+      ink.clearRect(0, 0, fieldWidth, fieldHeight);
+      ink.globalAlpha = Math.min(1, progress * 12) * (1 - letterInk);
+      grains.forEach((group, index) => {
+        ink.fillStyle = palette[index];
+        for (const grain of group) {
+          if (progress < grain.delay) continue;
+          const time = (progress - grain.delay) / (1 - grain.delay);
+          const eased = 1 - 2 ** (-9 * time);
+          const x = grain.sx + (grain.tx - grain.sx) * eased;
+          const y = grain.sy + (grain.ty - grain.sy) * eased - grain.arc * 4 * eased * (1 - eased);
+          ink.fillRect(x, y, grain.size, grain.size);
+        }
+      });
+      frame = requestAnimationFrame(paint);
+    }
+    frame = requestAnimationFrame(paint);
+  }
+
+  function updateBias() {
+    biasFrame = 0;
+    const scrollBias = Math.min(1, scrollY / Math.max(1, innerHeight)) * 8;
+    lettering.style.setProperty('--silk-bias', (cursorBias + scrollBias).toFixed(1) + '%');
+  }
+
+  function queueBias() {
+    if (!biasFrame && !reduced.matches) biasFrame = requestAnimationFrame(updateBias);
+  }
+
+  window.addEventListener('scroll', () => {
+    queueBias();
+    if (scrollY > Math.min(250, innerHeight * .34)) armed = true;
+    if (armed && scrollY <= 24) {
+      armed = false;
+      assemble();
+    }
+  }, {passive:true});
+  const hero = document.querySelector('#emirati');
+  hero.addEventListener('pointermove', event => {
+    if (event.pointerType === 'touch') return;
+    cursorBias = (event.clientY / Math.max(1, innerHeight) - .5) * 12;
+    queueBias();
+  }, {passive:true});
+  hero.addEventListener('pointerleave', () => {
+    cursorBias = 0;
+    queueBias();
+  }, {passive:true});
+  document.addEventListener('visibilitychange', () => { if (document.hidden) settle(); });
+  reduced.addEventListener('change', () => { if (reduced.matches) settle(); });
+  window.addEventListener('resize', settle, {passive:true});
+  document.fonts.load('500 64px EmiratiDisplay').catch(() => {}).then(() => {
+    if (scrollY <= 24) assemble();
+  });
+})();
