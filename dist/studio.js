@@ -42,7 +42,6 @@ const canAnimate = () => !paused && !reduced.matches;
   const dayReturn = 6.25;
   const lampLevels = [[lampOn,.15],[3.792,.90],[3.833,1],[3.958,.22],[4.083,1]];
   let visible = false, needsPlay = false, frame = 0;
-  let stalled;
 
   function paintPhase() {
     const time = video.currentTime;
@@ -70,6 +69,11 @@ const canAnimate = () => !paused && !reduced.matches;
     frame = requestAnimationFrame(trackPlayback);
   }
 
+  function stopTracking() {
+    cancelAnimationFrame(frame);
+    frame = 0;
+  }
+
   function updateControls() {
     motion.hidden = replay.hidden = reduced.matches;
     motion.textContent = needsPlay || video.ended ? 'Play intro' : paused ? 'Resume motion' : 'Pause motion';
@@ -77,20 +81,19 @@ const canAnimate = () => !paused && !reduced.matches;
   }
 
   function syncIntro() {
-    clearTimeout(stalled);
-    cancelAnimationFrame(frame);
+    stopTracking();
     if (!canAnimate() || !visible || document.hidden || video.ended || needsPlay) {
       video.pause();
       paintPhase();
       return;
     }
+    if (!video.paused && video.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA) trackPlayback();
     video.play().catch(error => {
       if (error.name === 'AbortError') return;
-      cancelAnimationFrame(frame);
+      stopTracking();
       needsPlay = true;
       updateControls();
     });
-    trackPlayback();
   }
 
   function syncMotion() {
@@ -109,30 +112,21 @@ const canAnimate = () => !paused && !reduced.matches;
   }
 
   video.addEventListener('playing', () => {
-    clearTimeout(stalled);
     needsPlay = false;
     video.classList.add('is-playing');
+    if (!frame) trackPlayback();
     updateControls();
   });
-  video.addEventListener("waiting", () => {
-    clearTimeout(stalled);
-    if (!canAnimate() || !visible || document.hidden) return;
-    stalled = setTimeout(() => {
-      video.pause();
-      cancelAnimationFrame(frame);
-      needsPlay = true;
-      updateControls();
-    }, 5000);
-  });
+  video.addEventListener('waiting', stopTracking);
   video.addEventListener('ended', () => {
-    cancelAnimationFrame(frame);
+    stopTracking();
     paintPhase();
     updateControls();
   });
   video.addEventListener('error', () => {
     needsPlay = true;
     video.classList.remove('is-playing');
-    cancelAnimationFrame(frame);
+    stopTracking();
     paintPhase();
     updateControls();
   });
