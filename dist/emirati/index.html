@@ -428,13 +428,14 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
 
   if(preview){
     const card=preview.parentElement.querySelector('.collection-glimpse');
-    let paused=reduce.matches, visible=false, frame=0, last=0, elapsed=0;
-    const fine=matchMedia('(hover: hover)');
+    let visible=false, frame=0, last=0, elapsed=0, contextLost=false;
+    let width=0,height=0,ratio=0;
     bridges.visible=openBridge.visible=false;
     camera.position.z=13;
     canvas.className='collection-canvas';
     preview.append(canvas);
     function draw(){
+      if(contextLost)return;
       model.rotation.set(.16,-.31+elapsed*Math.PI*2/14000,0);
       render.render(scene,camera);
       preview.dataset.ready='true';
@@ -444,15 +445,18 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       const rect=poster.getBoundingClientRect(), parent=preview.parentElement.getBoundingClientRect();
       Object.assign(preview.style,{left:(rect.left-parent.left)+"px",top:(rect.top-parent.top)+"px",width:rect.width+"px",height:rect.height+"px",right:"auto",bottom:"auto"});
       const {clientWidth:w,clientHeight:h}=preview;
-      if(!w||!h)return;
+      if(!w||!h||contextLost)return;
+      const nextRatio=Math.min(devicePixelRatio,2);
+      if(w===width&&h===height&&ratio===nextRatio)return;
+      width=w;height=h;ratio=nextRatio;
       camera.aspect=w/h;
       camera.updateProjectionMatrix();
-      render.setPixelRatio(Math.min(devicePixelRatio,2));
+      render.setPixelRatio(ratio);
       render.setSize(w,h,false);
       draw();
     }
     function play(now){
-      if(last)elapsed=(elapsed+now-last)%14000;
+      if(last)elapsed=(elapsed+Math.min(now-last,100))%14000;
       last=now;
       draw();
       frame=requestAnimationFrame(play);
@@ -460,18 +464,21 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     function sync(){
       cancelAnimationFrame(frame);
       last=0;
-      if(visible&&!paused&&!document.hidden&&!(fine.matches&&card.matches(':hover'))&&!card.matches(':focus-within')){
+      if(visible&&!reduce.matches&&!contextLost&&!document.hidden&&!document.body.classList.contains('motion-paused')){
         frame=requestAnimationFrame(play);
       }
     }
     new ResizeObserver(fit).observe(card);
     new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;sync();}).observe(preview);
-    reduce.addEventListener('change',()=>{paused=reduce.matches;sync();});
-    for(const event of ['pointerenter','pointerleave','focusin','focusout']){
-      card.addEventListener(event,()=>requestAnimationFrame(sync));
-    }
+    reduce.addEventListener('change',sync);
+    document.addEventListener('studio-motion',sync);
     document.addEventListener('visibilitychange',sync);
-    canvas.addEventListener('webglcontextlost',()=>{cancelAnimationFrame(frame);delete preview.dataset.ready;canvas.remove();},{once:true});
+    canvas.addEventListener('webglcontextlost',event=>{
+      event.preventDefault();contextLost=true;delete preview.dataset.ready;sync();
+    });
+    canvas.addEventListener('webglcontextrestored',()=>{
+      contextLost=false;width=0;fit();sync();
+    });
     fit();
     return;
   }

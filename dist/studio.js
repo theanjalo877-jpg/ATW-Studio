@@ -6,6 +6,26 @@ let paused = false;
 const canAnimate = () => !paused && !reduced.matches;
 
 {
+  const header = document.querySelector('.top');
+  const words = [...header.querySelectorAll('.nav-wave')];
+  function fitWave() {
+    const boxes = words.map(word => word.getBoundingClientRect());
+    const offsets = [0];
+    for (let i = 1; i < boxes.length; i++) {
+      const gap = boxes[i].left - boxes[i - 1].right;
+      offsets.push(offsets[i - 1] + boxes[i - 1].width + (gap >= 0 ? gap : 24));
+    }
+    const width = offsets.at(-1) + boxes.at(-1).width + 100;
+    header.style.setProperty('--wave-width', width + 'px');
+    words.forEach((word, i) => word.style.setProperty('--wave-offset', offsets[i] + 'px'));
+    header.dataset.waveReady = '';
+  }
+  const observer = new ResizeObserver(fitWave);
+  observer.observe(header);
+  words.forEach(word => observer.observe(word));
+}
+
+{
   const video = stage.querySelector('.stage-video');
   const nameLetters = [...stage.querySelectorAll('.office-name > span')].flatMap(word => {
     const letters = Array.from(word.textContent, character => {

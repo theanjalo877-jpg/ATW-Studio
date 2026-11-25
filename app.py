@@ -5,8 +5,32 @@ from pathlib import Path
 import re
 
 import streamlit as st
+from streamlit import runtime
 
 ASSETS = Path(__file__).with_name("dist")
+
+
+PORTFOLIO_VIDEOS = (
+    "office-intro.mp4", "qame-film.mp4", "qame-store-film.mp4",
+    "studio-closing.mp4", "fab-preview.mp4",
+)
+
+
+@lru_cache(maxsize=10)
+def _video_bytes(path, _revision):
+    return path.read_bytes()
+
+
+def portfolio_video_urls(mobile):
+    # Register for each Streamlit session so the media route stays available
+    # for viewers who reach a film later. Only video uses HTTP; artwork is embedded.
+    manager = runtime.get_instance().media_file_mgr
+    urls = []
+    for name in PORTFOLIO_VIDEOS:
+        asset = ASSETS / ("qame-store-mobile.mp4" if mobile and name == "qame-store-film.mp4" else name)
+        data = _video_bytes(asset, asset.stat().st_mtime_ns)
+        urls.append((name, manager.add(data, "video/mp4", f"portfolio-video:{name}")))
+    return tuple(urls)
 
 
 def portfolio_html(mobile=False):
@@ -14,11 +38,11 @@ def portfolio_html(mobile=False):
     assets = (*ASSETS.glob("*.*"), ASSETS / "emirati" / "index.html",
               ASSETS / "emirati" / "frames" / "orbit" / "000.webp")
     revision = tuple((path.name, path.stat().st_mtime_ns) for path in sorted(assets) if path.is_file())
-    return _portfolio_html(mobile, revision)
+    return _portfolio_html(portfolio_video_urls(mobile), revision)
 
 
 @lru_cache(maxsize=2)
-def _portfolio_html(mobile, _revision):
+def _portfolio_html(video_urls, _revision):
     page = (ASSETS / "index.html").read_text(encoding="utf-8")
     styles = (ASSETS / "studio.css").read_text(encoding="utf-8")
     script = (ASSETS / "studio.js").read_text(encoding="utf-8")
@@ -33,10 +57,8 @@ def _portfolio_html(mobile, _revision):
     page = re.sub(r'"([a-z0-9-]+\.webp)"', embed_image, page)
     page = page.replace('href="emirati/"', 'href="/?experience=emirati" target="_blank" rel="noopener noreferrer"')
     page = page.replace('"emirati/frames/orbit/000.webp"', '"' + watch_frame_url("orbit/000.webp") + '"')
-    for name in ("office-intro.mp4", "qame-film.mp4", "qame-store-film.mp4", "studio-closing.mp4", "fab-preview.mp4"):
-        media_name = "qame-store-mobile.mp4" if mobile and name == "qame-store-film.mp4" else name
-        video = b64encode((ASSETS / media_name).read_bytes()).decode("ascii")
-        page = page.replace(f'src="{name}"', f'src="data:video/mp4;base64,{video}"')
+    for name, url in video_urls:
+        page = page.replace(f'src="{name}"', f'src="{url}"')
     watch_page = (ASSETS / "emirati" / "index.html").read_text(encoding="utf-8")
     three, model, *_ = re.findall(r"<script>(.*?)</script>", watch_page, flags=re.S)
     preview_script = f"""
