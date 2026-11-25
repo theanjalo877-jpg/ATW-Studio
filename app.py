@@ -58,7 +58,11 @@ def _portfolio_html(video_urls, _revision):
     page = page.replace('href="emirati/"', 'href="/?experience=emirati" target="_blank" rel="noopener noreferrer"')
     page = page.replace('"emirati/frames/orbit/000.webp"', '"' + watch_frame_url("orbit/000.webp") + '"')
     for name, url in video_urls:
-        page = page.replace(f'src="{name}"', f'src="{url}"')
+        # srcdoc inherits the Streamlit document URL. Community Cloud serves
+        # that document under /~/+/, so /media/... would bypass its app proxy.
+        # Resolve default media paths relative to the embedding app instead.
+        media_url = url[1:] if url.startswith("/media/") else url
+        page = page.replace(f'src="{name}"', f'src="{media_url}"')
     watch_page = (ASSETS / "emirati" / "index.html").read_text(encoding="utf-8")
     three, model, *_ = re.findall(r"<script>(.*?)</script>", watch_page, flags=re.S)
     preview_script = f"""
