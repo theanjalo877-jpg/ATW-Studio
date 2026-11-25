@@ -249,7 +249,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   const titanium=metal(0x414a4e,.47,true), bevel=metal(0x9ba3a8,.14);
   const bronze=metal(0xd1a766,.37,true), goldEdge=metal(0xe7be7c,.14);
   const graphite=metal(0x121719,.59), strap=metal(0x525d64,.47,true), steel=metal(0x8b9294,.33,true);
-  const centerLink=[titanium,bevel], outerLink=[strap,bevel], goldIndex=[bronze,goldEdge];
+  const goldIndex=[bronze,goldEdge];
   const ruby=metal(0x91354c,.27);
   const layers=[];
   function group(x=0,y=0,z=0,spread=[0,0,0]){
@@ -295,20 +295,45 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   const linkGeometry=new T.ExtrudeGeometry(linkProfile,{
     depth:.11,bevelEnabled:true,bevelSize:.026,bevelThickness:.038,bevelSegments:2,
   });
+  const braceletGeometry=linkGeometry.clone();
+  const positions=braceletGeometry.attributes.position;
+  const shading=new Float32Array(positions.count*3);
+  for(let i=0;i<positions.count;i++){
+    // Bake contact darkening into the inner shoulders while leaving polished rims clear.
+    const underside=1-T.MathUtils.smoothstep(positions.getZ(i),-.025,.069);
+    const shoulder=T.MathUtils.smoothstep(Math.abs(positions.getY(i)),.15,.265);
+    shading.fill(1-underside*(.09+.18*shoulder),i*3,i*3+3);
+  }
+  braceletGeometry.setAttribute('color',new T.BufferAttribute(shading,3));
+  const [brushedCenter,brushedOuter,polishedEdge]=[titanium,strap,bevel].map(finish=>
+    Object.assign(finish.clone(),{vertexColors:true})
+  );
+  const braceletCenter=[brushedCenter,polishedEdge],braceletOuter=[brushedOuter,polishedEdge];
   for(const side of [-1,1]){
     const band=group(0,side*1.82,-.04,[0,side*1.0,-.72]);
     for(const x of [-.68,.68]){
       const lug=mesh(body,linkGeometry,titanium,x,side*1.58,.16);
       lug.scale.set(.30,1.25,1.18);
     }
-    for(let i=0;i<11;i++){
-      const y=side*(.16+i*.167),w=1.48-i*.028,z=-.024*i-.0028*i*i;
+    // Follow the tangent of a wrist cross-section from the lugs around the back.
+    const linkCount=16,radius=1.49;
+    let angle=.066;
+    for(let i=0;i<linkCount;i++){
+      const depth=i/(linkCount-1);
+      const pitch=.115-.022*depth;
+      const sin=Math.sin(angle),cos=Math.cos(angle);
+      const y=side*(.055+radius*sin),z=-radius*(1-cos);
+      const width=1.48-.31*depth;
+      const recess=new T.Color().setScalar(1-.29*depth**1.45);
       for(const rail of [-1,0,1]){
-        const x=rail*w*.307;
-        const link=mesh(band,linkGeometry,rail===0?centerLink:outerLink,x,y,z+(rail===0?.025:0));
-        link.scale.set(w*(rail===0?.39:.27),.285,1);
-        link.rotation.x=side*(-.11-.033*i);
+        const crown=rail===0?.025:0;
+        const link=mesh(band,braceletGeometry,rail===0?braceletCenter:braceletOuter,
+          rail*width*.307,y+side*crown*sin,z+crown*cos);
+        link.scale.set(width*(rail===0?.39:.27),(radius*pitch-.017)/.532,1);
+        link.rotation.x=-side*angle;
+        link.userData.linkTint=recess;
       }
+      angle+=pitch;
     }
   }
   const plate=group(0,0,.015,[-.60,0,-.37]);
@@ -502,7 +527,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   // Batch indices, screws, gear teeth and strap links by material and movement layer.
   for (const g of [...layers.map(layer=>layer.g),balance]) {
     const batches=new Map();
-    for (const part of g.children) if (part.geometry===unitBox||part.geometry===linkGeometry||part.geometry===indexGeometry){
+    for (const part of g.children) if (part.geometry===unitBox||part.geometry===linkGeometry||part.geometry===braceletGeometry||part.geometry===indexGeometry){
       const materialKey=Array.isArray(part.material)?part.material.map(mat=>mat.id).join(','):part.material.id;
       const key=part.geometry.id+':'+materialKey;
       if(!batches.has(key))batches.set(key,[]);
@@ -512,7 +537,9 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       if(parts.length<2)continue;
       const instances=new T.InstancedMesh(parts[0].geometry,parts[0].material,parts.length);
       parts.forEach((part,index)=>{
-        part.updateMatrix();instances.setMatrixAt(index,part.matrix);g.remove(part);
+        part.updateMatrix();instances.setMatrixAt(index,part.matrix);
+        if(part.userData.linkTint)instances.setColorAt(index,part.userData.linkTint);
+        g.remove(part);
       });
       g.add(instances);
     }
