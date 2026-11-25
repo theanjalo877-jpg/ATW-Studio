@@ -640,9 +640,9 @@ section[id],footer[id]{scroll-margin-top:18px}
 .metal-wave{display:inline-block;color:#e6c28d}
 @supports(background-clip:text){
  .metal-wave{
-  --metal:linear-gradient(90deg,#e2c49b 0%,#e2c49b 12%,#b37b55 24%,
-    #312923 32%,#141211 37%,#a46b48 43%,#d5a36d 49%,#fff0c1 55%,
-    #deac74 62%,#bd8a64 70%,#e2c49b 81%,#e2c49b 100%);
+  --metal:linear-gradient(90deg,#e2c49b 0%,#e2c49b 19%,#ad7451 28%,
+    #211b18 34%,#0e0d0d 41%,#8f593d 46%,#e9b271 51%,#fff2c7 55%,
+    #e6aa69 59%,#b77c4f 66%,#e2c49b 78%,#e2c49b 100%);
   background-image:var(--metal);background-repeat:repeat-x;
   background-size:var(--wave-width,230%) 100%;
   background-position:calc(0px - var(--wave-offset,0px)) center;
