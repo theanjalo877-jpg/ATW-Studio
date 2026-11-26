@@ -48,22 +48,21 @@ body.portfolio,body.meridian{background:var(--obsidian);color:var(--pearl);font:
  border:.5px solid var(--maison-line);transition:border-color .6s var(--maison-ease)
 }
 .portfolio :is(.project,.study-card,.brand-projects a,.collection-glimpse):is(:hover,:focus-within){border-color:var(--maison-active)}
-.portfolio :is(.contact-dialog,.contact-dock,.concept-badge),.meridian .inspection-hud button{backdrop-filter:blur(12px)}
+.portfolio :is(.contact-dialog,.contact-dock,.concept-badge){backdrop-filter:blur(12px)}
 .portfolio :is(.project-body p:not(.eyebrow),.study-card p:not(.eyebrow),.profile p,.contact-dialog p){color:var(--stone)}
 .portfolio :is(.study-card a,.text-link){color:var(--highlight)}
 .portfolio .study-banner::after{background:linear-gradient(0deg,var(--obsidian),#0b0e0ca0 35%,transparent 83%)}
 .portfolio .contact-address-row input{background:var(--obsidian);color:var(--pearl);border-color:var(--maison-active)}
 .portfolio :is(.pill,.top-contact,.hero-actions a,.hero-actions button,.qame-film button,.contact-options a,#copy-address,.contact-close,.contact-dock a,.closing-contacts a),
-.meridian :is(.enquiry,.inspection-hud button){
+.meridian .enquiry{
  color:var(--pearl);border:.5px solid var(--maison-active);
  background:linear-gradient(112deg,transparent 33%,#e8d3a32b 49%,transparent 66%) 100% center/270% 100% no-repeat,var(--surface);
  transition:background-position .65s var(--maison-ease),border-color .65s var(--maison-ease),color .65s var(--maison-ease)
 }
 .portfolio :is(.pill,.top-contact,.hero-actions a,.hero-actions button,.qame-film button,.contact-options a,#copy-address,.contact-close,.contact-dock a,.closing-contacts a):is(:hover,:focus-visible),
-.meridian :is(.enquiry,.inspection-hud button):is(:hover,:focus-visible){
+.meridian .enquiry:is(:hover,:focus-visible){
  background-color:var(--botanical);background-position:0 center;color:var(--highlight);border-color:var(--highlight)
 }
-.meridian .inspection-hud button[aria-pressed="true"]{background-color:var(--botanical);color:var(--highlight)}
 .portfolio :is(.brand-projects img,.project-visual .mini,.sheet,.study-card){transition-timing-function:var(--maison-ease)}
 .meridian{--ink:var(--obsidian);--paper:var(--pearl);--gold:var(--champagne);--muted:var(--stone)}
 .meridian :is(.story,.edition){background:radial-gradient(ellipse at center,#143d3048,transparent 72%),var(--obsidian)}

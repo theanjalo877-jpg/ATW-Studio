@@ -8,7 +8,7 @@
 :root{color-scheme:dark;--ink:#0a0a0b;--gold:#c8a36c;--paper:#f2ece1;--muted:#b8aea0;font:16px/1.55 'DM Sans',sans-serif;color:var(--paper);background:var(--ink)}
 *{box-sizing:border-box}body{margin:0}a{color:inherit;text-decoration:none}a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:5px}header,footer{display:flex;align-items:center;justify-content:space-between;padding:clamp(16px,3vw,36px) clamp(18px,6vw,90px);gap:20px;border-bottom:1px solid #c8a36c33}header>a{letter-spacing:.18em;font-weight:600}header span{font-size:.75rem;color:var(--gold)}nav{display:flex;gap:clamp(12px,3vw,44px);font-size:.875rem;color:var(--muted)}nav a:hover,footer a:hover{color:var(--gold)}
 .sequence{height:240svh}.hero{height:255svh}.stage{height:100svh;position:sticky;top:0;overflow:hidden;isolation:isolate;background:radial-gradient(ellipse at 63% 51%,#28231e 0%,#151312 31%,#0a0a0b 70%)}.stage::before{content:"";position:absolute;inset:6%;border:1px solid #c8a36c22;pointer-events:none}.stage img,.stage canvas{position:absolute;width:100%;height:100%;inset:0;object-fit:contain}.stage canvas{opacity:0}.stage[data-frame] canvas{opacity:1}.stage[data-frame] img{opacity:0}.label{color:var(--gold);text-transform:uppercase;letter-spacing:.25em;font-size:.875rem;margin:0 0 1rem}.hero-copy,.caption{position:absolute;left:9%;top:50%;transform:translateY(-50%);text-shadow:0 3px 20px #000;pointer-events:none}.hero-copy{opacity:calc(1 - var(--p,0)*1.65);transform:translateY(calc(-50% - var(--p,0)*40px))}h1,h2{font-family:'Instrument Serif',Georgia,serif;font-weight:400;line-height:.93;margin:0}h1{font-size:clamp(5rem,13vw,13rem);letter-spacing:calc(-.03em + var(--p,0)*.18em)}h2{font-size:clamp(3.5rem,9vw,8.5rem)}.hero-copy>p:last-child,.caption>p:last-child,.story>p:last-child,.note{color:var(--muted)}.scroll-note{position:absolute;bottom:8%;left:9%;font-size:.875rem;border-bottom:1px solid var(--gold);padding-bottom:.3em}.caption{top:auto;bottom:11%;transform:translateY(calc((1 - var(--p,.4))*22px));opacity:clamp(.18,calc(var(--p,.4)*3),1)}.caption h2{font-size:clamp(3rem,7vw,6rem)}#movement .stage::after{content:"";position:absolute;inset:65% 0 0;background:linear-gradient(transparent,#0a0a0bce);z-index:0;pointer-events:none}.caption,.hero-copy,.scroll-note,dl{z-index:1}.story,.edition{text-align:center;padding:clamp(85px,15vw,220px) 20px;border-block:1px solid #c8a36c33}.story{background:radial-gradient(ellipse at 50% 40%,#241e17,transparent 73%)}dl{position:absolute;right:9%;bottom:10%;display:grid;gap:12px;margin:0;text-align:right;opacity:clamp(.25,calc(var(--p,.4)*3),1)}dt{font:2rem Georgia,serif;color:var(--gold)}dd{margin:0;color:var(--paper);font-size:.875rem}.price{font-size:1.25rem;color:var(--gold);margin:18px 0 28px}button{font:inherit;color:var(--paper);border:1px solid var(--gold);background:#211a12;padding:12px 23px;cursor:pointer}button:hover{background:#3b2b1b}.note{font-size:.875rem;margin-top:25px}footer{border:0;color:var(--muted)}dialog{width:min(480px,90%);padding:32px;background:#161411;color:var(--paper);border:1px solid var(--gold)}dialog::backdrop{background:#000b}dialog h2{font-size:3rem}dialog .close{float:right;padding:3px 12px}#interest{display:grid;gap:10px}input{width:100%;padding:11px;font:inherit;background:#0a0a0b;color:var(--paper);border:1px solid #8f795d}
-@media(max-width:650px){header{flex-wrap:wrap}.stage img,.stage canvas{object-fit:contain;height:76%;top:12%}.hero-copy{top:21%;left:8%}.hero-copy h1{font-size:clamp(4.7rem,21vw,7rem)}.caption{left:8%;bottom:10%}.engineering .caption{bottom:24%}dl{left:8%;right:8%;bottom:8%;grid-template-columns:repeat(3,1fr);text-align:left}dt{font-size:1.55rem}dd{font-size:.8rem}}
+@media(max-width:650px){header{flex-wrap:wrap}.stage img,.stage canvas{object-fit:contain;height:76%;top:12%}.hero-copy{top:21%;left:8%}.hero-copy h1{font-size:clamp(4.7rem,21vw,7rem)}.caption{left:8%;bottom:10%}dl{left:8%;right:8%;bottom:8%;grid-template-columns:repeat(3,1fr);text-align:left}dt{font-size:1.55rem}dd{font-size:.8rem}}
 @media(prefers-reduced-motion:reduce){.sequence,.hero{height:auto}.stage{position:relative;min-height:570px;height:82svh}.hero-copy,.caption,dl{opacity:1}.stage canvas{display:none}}
 .hero h1{animation:meridian-title 1.15s cubic-bezier(.2,.7,.25,1) both}
 @keyframes meridian-title{from{opacity:0;letter-spacing:.12em}to{opacity:1}}
@@ -128,12 +128,6 @@ header>a.header-signature{display:block;width:69px;line-height:0}
  }
 }
 
-.inspection-hud[hidden]{display:none}
-.inspection-hud{position:fixed;z-index:999;right:28px;bottom:calc(64px + env(safe-area-inset-bottom,0px));display:flex;flex-wrap:nowrap;gap:8px}
-.inspection-hud button{border-radius:999px;background:#101714f2;border:1px solid #a88b595e;color:#ded4c1;padding:7px 12px;font-size:.66rem;letter-spacing:.10em;min-height:36px;white-space:nowrap}
-.inspection-hud button[aria-pressed="true"]{border-color:#c8a36c;background:#2c2920;color:#f2d69b}
-.inspection-hud button[aria-pressed="true"]::before{background:#e2c48c;box-shadow:0 0 8px #d3ae6277}
-.inspection-hud button::before{content:"";display:inline-block;width:5px;height:5px;border:1px solid #ac9367;border-radius:50%;margin-right:7px;vertical-align:.13em}
 .watch-callout{grid-column:1;grid-row:2;z-index:1;align-self:end;max-width:37ch;margin:0;
  border-top:1px solid #b6956052;padding:12px 0 0;color:var(--muted);
  font-size:clamp(.73rem,1.1vw,.88rem);line-height:1.45;pointer-events:none}
@@ -143,11 +137,13 @@ header>a.header-signature{display:block;width:69px;line-height:0}
 .scroll-note{grid-row:3;margin:0 0 23px}
 .stage[data-gpu] .watch-callout{opacity:var(--callout,0);transform:translateY(calc((1 - var(--callout,0))*11px))}
 @media(max-width:700px){
- .stage{grid-template-rows:auto minmax(0,1fr) auto auto;row-gap:8px;padding-bottom:calc(119px + env(safe-area-inset-bottom,0px))}
+ .stage{grid-template-rows:auto minmax(0,1fr) auto auto;row-gap:8px;padding:clamp(24px,5vw,36px) 20px calc(42px + env(safe-area-inset-bottom,0px))}
+ .stage::before{inset:12px}
+ .stage .caption,.stage .hero-copy{inset:auto;align-self:start}
+ .stage .caption h2{font-size:clamp(2rem,9vw,3.5rem)}
+ .stage .caption .label{margin-bottom:.55rem}
  .watch-callout{grid-row:3}
  .scroll-note{grid-row:4;margin:0}
- .inspection-hud{right:50%;transform:translateX(50%);width:max-content;max-width:calc(100% - 32px)}
- .inspection-hud button{min-height:44px}
 }
 @media(prefers-reduced-motion:reduce){.signature-light{animation:none}}
 </style>
@@ -209,10 +205,6 @@ header>a.header-signature{display:block;width:69px;line-height:0}
 </section>
 <section class="edition" id="edition"><div class="closing-copy"><p class="label">The Meridian Collection · By ATW.</p><h2 class="calderis-mark calderis-script">L. Calderis</h2><p class="note">An independent watch design concept by Anjalo Theophine Wilson.</p><a class="enquiry" href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=anjalotwilson%40gmail.com&amp;su=L.%20CALDERIS%20concept%20enquiry" target="_blank" rel="noopener noreferrer">Enquire about the concept</a></div></section>
 </main>
-<div class="inspection-hud" role="group" aria-label="Watch inspection controls" hidden>
- <button type="button" id="live-calibre" aria-pressed="true">Live movement</button>
- <button type="button" id="studio-angle" aria-pressed="false" aria-label="Light sweep / Studio angle">Light sweep</button>
-</div>
 <footer><a href="../">ATW Studio</a><a href="#meridian">Back to top</a></footer>
 <script>console.warn('Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation'),
 /**
@@ -803,17 +795,14 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     return;
   }
 
-  const hud=document.querySelector('.inspection-hud');
-  const liveButton=document.querySelector('#live-calibre');
-  const lightButton=document.querySelector('#studio-angle');
   const viewport=sections.map(section=>({
     section,stage:section.querySelector('.stage'),art:section.querySelector('.shot-art'),
   }));
   const visibleArt=new Set();
   let active=-1,progress=0,x=0,y=0,px=0,py=0,frame=0,width=0,height=0;
   let ratio=Math.min(window.devicePixelRatio||1,2),slow=0,last=0,layout=[];
-  let running=true,inspect=false,contextLost=false,mechanicalTime=0,sweep=0,signatureAge=0,lightTime=0;
-  let touchPointer=null,hovering=false,heritage=0;
+  let contextLost=false,mechanicalTime=0,sweep=0,signatureAge=0,lightTime=0;
+  let hovering=false,heritage=0;
   const clamp=T.MathUtils.clamp;
   const smooth=p=>p*p*(3-2*p);
   const ease=(from,to,value)=>smooth(clamp((value-from)/(to-from),0,1));
@@ -847,31 +836,18 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   },{passive:true});
   window.addEventListener('scroll',wake,{passive:true});
 
-  liveButton.addEventListener('click',()=>{
-    running=!running;liveButton.setAttribute('aria-pressed',String(running));wake();
-  });
-  lightButton.addEventListener('click',()=>{
-    inspect=!inspect;
-    if(inspect)rearAge=0;
-    lightButton.setAttribute('aria-pressed',String(inspect));
-    touchPointer=null;x=y=0;wake();
-  });
   function moveLight(event){
-    if(!inspect||active<0||(event.pointerType==='touch'&&event.pointerId!==touchPointer))return;
+    if(active<0||event.pointerType==='touch')return;
     const rect=viewport[active].art.getBoundingClientRect();
     x=clamp((event.clientX-rect.left)/rect.width*2-1,-1,1);
     y=clamp((event.clientY-rect.top)/rect.height*2-1,-1,1);
     wake();
   }
   function resetLight(){
-    touchPointer=null;hovering=false;x=y=0;wake();
+    hovering=false;x=y=0;wake();
   }
   for(const {art} of viewport){
     art.addEventListener('pointerenter',()=>{hovering=true;wake();},{passive:true});
-    art.addEventListener('pointerdown',event=>{
-      hovering=true;wake();
-      if(inspect&&event.pointerType==='touch'){touchPointer=event.pointerId;moveLight(event);}
-    },{passive:true});
     art.addEventListener('pointermove',moveLight,{passive:true});
     art.addEventListener('pointerleave',resetLight,{passive:true});
     art.addEventListener('pointercancel',resetLight,{passive:true});
@@ -881,7 +857,6 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     if(active===index)return;
     if(active>=0)delete viewport[active].stage.dataset.gpu;
     active=index;
-    hud.hidden=index<0;
     if(index>=0){
       viewport[index].art.append(canvas);
       measure();
@@ -900,13 +875,11 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     rearFacing=facing>(rearFacing?.37:.5);
     caseback.surface.visible=facing>.12;
     if(entered)rearAge=0;
-    if(!rearFacing){caseback.uniforms.glow.value=0;return false;}
+    if(!rearFacing){caseback.uniforms.glow.value=0;return;}
     rearAge+=delta;
-    const time=inspect?rearAge%6200:rearAge;
-    const travel=clamp(time/1900,0,1);
+    const travel=clamp(rearAge/1900,0,1);
     caseback.uniforms.beam.value=-.26+1.52*smooth(travel)+px*.14;
     caseback.uniforms.glow.value=Math.sin(Math.PI*travel)**.8;
-    return inspect||travel<1;
   }
   function step(now){
     frame=0;
@@ -942,7 +915,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         }else caption.textContent=label;
       }
     }
-    if(running)mechanicalTime+=delta/1000;
+    mechanicalTime+=delta/1000;
     signatureAge+=delta/1000;
     lightTime+=delta/1000;
     lightSignature(signatureAge,lightTime,px+progress*.55);
@@ -980,15 +953,14 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         (portrait?12.65:11.9)+expansion*5/Math.max(.8,camera.aspect));
       camera.lookAt(expansion*.66,0,expansion*.45);
     }
-    const sweepingCaseback=updateCaseback(delta);
+    updateCaseback(delta);
     render.render(scene,camera);
     stage.dataset.gpu='active';
     const alpha=chapter===0?1-ease(.23,.51,progress):chapter===1?
       ease(.12,.35,progress)*(1-ease(.79,.99,progress)):1-ease(.19,.53,progress);
     const callout=alpha.toFixed(3);
     if(stage.style.getPropertyValue('--callout')!==callout)stage.style.setProperty('--callout',callout);
-    if(running||sweepingCaseback||signatureAge<1.55||Math.abs(heritageTarget-heritage)>.004||Math.abs(target-progress)>.001||Math.abs(x-px)+Math.abs(y-py)>.003||Math.abs(sweepTarget-sweep)>.003)wake();
-    else last=0;
+    wake();
   }
   function sync(){
     cancelAnimationFrame(frame);frame=0;last=0;
