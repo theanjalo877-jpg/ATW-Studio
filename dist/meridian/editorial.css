@@ -1,5 +1,9 @@
+.phone-stage{
+ width:min(650px,100%);min-height:min(650px,calc((100vw - 40px)*650/320));
+ margin-inline:auto;display:grid;place-items:center
+}
 .editorial-phone{
- width:min(320px,100%);aspect-ratio:320/650;margin-inline:auto;padding:6px;
+ width:min(320px,100%);height:min(650px,calc((100vw - 40px)*650/320));margin-inline:auto;padding:6px;
  background:linear-gradient(145deg,#615e57,#242521 24%,#101110 55%,#46443e 88%,#20211f);
  border:1px solid #8a807166;border-radius:42px;
  box-shadow:0 22px 55px #000b,inset 0 0 0 1px #1b1b19,0 0 0 1px #060606;
@@ -51,3 +55,37 @@
 .phone-progress button[aria-current="true"]::before{background:#f4f1eaa0}
 .phone-announcement{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media(prefers-reduced-motion:reduce){.phone-slide{transition:none}}
+
+.editorial-phone.is-landscape{
+ width:100%;height:clamp(186px,calc((100vw - 40px)*.51),330px);
+ border-radius:35px;
+}
+.is-landscape .phone-screen{border-radius:28px}
+.is-landscape .phone-island{
+ top:50%;left:12px;translate:0 -50%;width:20px;height:29%;
+}
+.is-landscape .phone-island::after{top:8px;right:7px}
+.is-landscape .phone-slide-sand{object-position:center;transform-origin:77% 48%}
+.is-landscape .phone-prev{left:38px}
+.is-landscape .phone-editorial{padding:26px 19px 8px}
+.is-landscape .phone-title{font-size:clamp(1.15rem,4vw,1.85rem);margin:.2rem 0 .35rem}
+.is-landscape .phone-progress{margin-top:4px}
+@media(max-width:500px){
+ .is-landscape .phone-island{left:8px;width:13px}
+ .is-landscape .phone-island::after{width:4px;height:4px;right:4px}
+ .is-landscape .phone-prev{left:27px}
+ .is-landscape .phone-editorial{padding:19px 12px 5px}
+ .is-landscape .phone-chevron{top:43%;width:30px;height:30px}
+}
+@media(prefers-reduced-motion:no-preference){
+ .editorial-phone{
+  transition:width .84s cubic-bezier(.16,1,.3,1),height .84s cubic-bezier(.16,1,.3,1),
+    border-radius .84s cubic-bezier(.16,1,.3,1);
+ }
+ .editorial-phone.is-landscape{animation:phone-turn .88s cubic-bezier(.16,1,.3,1) both}
+ @keyframes phone-turn{
+  0%{transform:rotate(0)}
+  27%{transform:rotate(-11deg) scale(.83)}
+  100%{transform:rotate(0) scale(1)}
+ }
+}

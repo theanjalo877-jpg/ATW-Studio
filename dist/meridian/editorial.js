@@ -8,7 +8,7 @@
   const autoplay = phone.querySelector('.phone-autoplay');
   const announcement = phone.querySelector('.phone-announcement');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  const duration = 4000;
+  const duration = 5000;
   let index = 0, elapsed = 0, last = 0, frame = 0, drag = null;
   let visible = false, hovering = false, suspended = reduced.matches, zoomed = false;
 
@@ -35,6 +35,7 @@
     index = (next + slides.length) % slides.length;
     elapsed = last = 0;
     setZoom(false);
+    phone.classList.toggle('is-landscape', slides[index].dataset.orientation === 'landscape');
     slides.forEach((slide, i) => {
       slide.classList.toggle('is-current', i === index);
       slide.setAttribute('aria-hidden', String(i !== index));
