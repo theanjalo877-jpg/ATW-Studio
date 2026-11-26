@@ -265,11 +265,11 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   brushing.wrapS=brushing.wrapT=T.RepeatWrapping;brushing.repeat.set(1,2);
   brushing.anisotropy=Math.min(4,render.capabilities.getMaxAnisotropy());
   const metal=(color,roughness=.36,brushed=false)=>new T.MeshStandardMaterial({
-    color,metalness:.87,roughness,roughnessMap:brushed?brushing:null,envMapIntensity:1.24,
+    color,metalness:.90,flatShading:false,roughness,roughnessMap:brushed?brushing:null,envMapIntensity:1.24,
   });
-  const titanium=metal(0x414a4e,.47,true), bevel=metal(0x9ba3a8,.14);
+  const titanium=metal(0x414a4e,.28,true), bevel=metal(0x9ba3a8,.14);
   const bronze=metal(0xd1a766,.37,true), goldEdge=metal(0xe7be7c,.14);
-  const graphite=metal(0x121719,.59), strap=metal(0x525d64,.47,true), steel=metal(0x8b9294,.33,true);
+  const graphite=metal(0x121719,.59), strap=metal(0x525d64,.28,true), steel=metal(0x8b9294,.33,true);
   const goldIndex=[bronze,goldEdge];
   const ruby=metal(0x91354c,.27);
   const layers=[];
@@ -281,18 +281,46 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   function mesh(g,geometry,material,x=0,y=0,z=0){
     const m=new T.Mesh(geometry,material);m.position.set(x,y,z);g.add(m);return m;
   }
-  const cylinder=(g,r,h,mat,x=0,y=0,z=0,n=80)=>{
-    const m=mesh(g,new T.CylinderGeometry(r,r,h,n),mat,x,y,z);m.rotation.x=Math.PI/2;return m;
+  const radialSegments=128;
+  const cylinderGeometry=new T.CylinderGeometry(1,1,1,radialSegments);
+  const cylinder=(g,r,h,mat,x=0,y=0,z=0)=>{
+    const part=mesh(g,cylinderGeometry,mat,x,y,z);
+    part.scale.set(r,h,r);part.rotation.x=Math.PI/2;return part;
   };
-  const ring=(g,r,t,mat,x=0,y=0,z=0)=>mesh(g,new T.TorusGeometry(r,t,12,96),mat,x,y,z);
+  const ring=(g,r,t,mat,x=0,y=0,z=0)=>mesh(g,new T.TorusGeometry(r,t,16,radialSegments),mat,x,y,z);
+  function machinedExtrusion(shape,options){
+    const geometry=new T.ExtrudeGeometry(shape,{
+      ...options,curveSegments:radialSegments,bevelEnabled:true,bevelSegments:8,
+    });
+    geometry.computeVertexNormals();
+    // ExtrudeGeometry duplicates vertices at each triangle. Average only the wall
+    // and chamfer normals so the machined face stays planar and the shoulder flows.
+    const position=geometry.attributes.position,normal=geometry.attributes.normal;
+    const smooth=new Map();
+    const walls=geometry.groups.filter(part=>part.materialIndex===1);
+    for(const {start,count} of walls){
+      for(let i=start;i<start+count;i++){
+        const key=[position.getX(i),position.getY(i),position.getZ(i)].map(value=>Math.round(value*1e6)).join(',');
+        let weld=smooth.get(key);
+        if(!weld){weld={normal:new T.Vector3(),vertices:[]};smooth.set(key,weld);}
+        weld.normal.x+=normal.getX(i);weld.normal.y+=normal.getY(i);weld.normal.z+=normal.getZ(i);
+        weld.vertices.push(i);
+      }
+    }
+    for(const weld of smooth.values()){
+      const n=weld.normal.normalize();
+      for(const i of weld.vertices)normal.setXYZ(i,n.x,n.y,n.z);
+    }
+    return geometry;
+  }
   const unitBox = new T.BoxGeometry(1,1,1);
   const box=(g,w,h,d,mat,x=0,y=0,z=0)=>{
     const part=mesh(g,unitBox,mat,x,y,z);part.scale.set(w,h,d);return part;
   };
-  function planeRing(g,outer,inner,depth,mat){
+  function planeRing(g,outer,inner,depth,mat,edge=.024){
     const shape=new T.Shape();shape.absarc(0,0,outer,0,Math.PI*2,false);
     const cut=new T.Path();cut.absarc(0,0,inner,0,Math.PI*2,true);shape.holes.push(cut);
-    return mesh(g,new T.ExtrudeGeometry(shape,{depth,bevelEnabled:true,bevelSize:.024,bevelThickness:.024,bevelSegments:2,curveSegments:48}),[mat,bevel]);
+    return mesh(g,machinedExtrusion(shape,{depth,bevelSize:edge,bevelThickness:edge}),[mat,bevel]);
   }
   const back=group(0,0,-.37,[-.8,0,-2.8]);
   cylinder(back,1.68,.22,titanium);ring(back,1.53,.035,steel,0,0,-.12);
@@ -366,6 +394,11 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   planeRing(body,1.78,1.55,.52,titanium);
   ring(body,1.77,.026,bevel,0,0,.12);
   for(const y of [-.55,0,.55]){
+    const collarRadius=y===0?.144:.094;
+    const collar=cylinder(body,collarRadius,.29,titanium,1.73,y,.25);
+    collar.rotation.set(0,0,Math.PI/2);
+    const ferrule=cylinder(body,collarRadius*1.08,.044,bevel,1.813,y,.25);
+    ferrule.rotation.set(0,0,Math.PI/2);
     const control=group(1.88,y,.03,[.75,y*.38,-.52]);
     cylinder(control,y===0?.20:.13,.24,bevel).rotation.set(0,0,Math.PI/2);
     for(let i=0;i<20;i++){
@@ -373,15 +406,17 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       box(control,.094,.021,.026,titanium,.105,Math.cos(a)*.18,Math.sin(a)*.18).rotation.x=a;
     }
   }
-  const linkProfile = new T.Shape();
-  linkProfile.moveTo(-.46,-.24);linkProfile.lineTo(.46,-.24);
-  linkProfile.quadraticCurveTo(.5,-.24,.5,-.17);linkProfile.lineTo(.5,.17);
-  linkProfile.quadraticCurveTo(.5,.24,.46,.24);linkProfile.lineTo(-.46,.24);
-  linkProfile.quadraticCurveTo(-.5,.24,-.5,.17);linkProfile.lineTo(-.5,-.17);
-  linkProfile.quadraticCurveTo(-.5,-.24,-.46,-.24);
-  const linkGeometry=new T.ExtrudeGeometry(linkProfile,{
-    depth:.11,bevelEnabled:true,bevelSize:.026,bevelThickness:.038,bevelSegments:2,
-  });
+  const linkProfile=new T.Shape();
+  for(const [x,y,start] of [[.44,.18,0],[-.44,.18,Math.PI/2],[-.44,-.18,Math.PI],[.44,-.18,Math.PI*1.5]]){
+    for(let i=0;i<=8;i++){
+      const angle=start+i*Math.PI/16;
+      const px=x+.06*Math.cos(angle),py=y+.06*Math.sin(angle);
+      if(start===0&&i===0)linkProfile.moveTo(px,py);
+      else linkProfile.lineTo(px,py);
+    }
+  }
+  linkProfile.closePath();
+  const linkGeometry=machinedExtrusion(linkProfile,{depth:.11,bevelSize:.026,bevelThickness:.038});
   const braceletGeometry=linkGeometry.clone();
   const positions=braceletGeometry.attributes.position;
   const shading=new Float32Array(positions.count*3);
@@ -396,32 +431,49 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     Object.assign(finish.clone(),{vertexColors:true})
   );
   const braceletCenter=[brushedCenter,polishedEdge],braceletOuter=[brushedOuter,polishedEdge];
+  const wristArc=new T.CatmullRomCurve3([
+    [1.82,.04],[2.53,-.18],[3.15,-.78],[3.33,-1.58],
+    [3.06,-2.45],[2.20,-3.10],[1.30,-3.37],[.49,-3.43],
+  ].map(([y,z])=>new T.Vector3(0,y,z)));
+  const linkCount=29,linkLength=wristArc.getLength()/linkCount-.041;
   for(const side of [-1,1]){
     const band=group(0,side*1.82,-.04,[0,side*1.0,-.72]);
     for(const x of [-.68,.68]){
       const lug=mesh(body,linkGeometry,titanium,x,side*1.58,.16);
       lug.scale.set(.30,1.25,1.18);
     }
-    // Follow the tangent of a wrist cross-section from the lugs around the back.
-    const linkCount=16,radius=1.49;
-    let angle=.066;
     for(let i=0;i<linkCount;i++){
-      const depth=i/(linkCount-1);
-      const pitch=.115-.022*depth;
-      const sin=Math.sin(angle),cos=Math.cos(angle);
-      const y=side*(.055+radius*sin),z=-radius*(1-cos);
-      const width=1.48-.31*depth;
-      const recess=new T.Color().setScalar(1-.29*depth**1.45);
+      const t=(i+.5)/linkCount;
+      const point=wristArc.getPointAt(t),tangent=wristArc.getTangentAt(t);
+      const angle=Math.atan2(side*tangent.z,tangent.y);
+      const width=1.48-.31*T.MathUtils.smoothstep(t,0,.86);
+      const recess=new T.Color().setScalar(1-.26*t**1.35);
       for(const rail of [-1,0,1]){
         const crown=rail===0?.025:0;
         const link=mesh(band,braceletGeometry,rail===0?braceletCenter:braceletOuter,
-          rail*width*.307,y+side*crown*sin,z+crown*cos);
-        link.scale.set(width*(rail===0?.39:.27),(radius*pitch-.017)/.532,1);
-        link.rotation.x=-side*angle;
+          rail*width*.307,side*(point.y-1.82)-crown*Math.sin(angle),point.z+crown*Math.cos(angle));
+        link.scale.set(width*(rail===0?.39:.27),linkLength/.532,1);
+        link.rotation.x=angle;
         link.userData.linkTint=recess;
       }
-      angle+=pitch;
+      // Recessed hinge pins join adjacent links across the machined seams.
+      const hinge=wristArc.getPointAt(i/linkCount);
+      const pin=cylinder(band,.028,width*.84,graphite,0,side*(hinge.y-1.82),hinge.z-.025);
+      pin.rotation.set(0,0,Math.PI/2);
     }
+  }
+  const clasp=group(0,0,-3.47,[0,-.45,-1.8]);
+  const claspShell=mesh(clasp,linkGeometry,[titanium,bevel]);
+  claspShell.scale.set(1.19,2.25,1.06);
+  claspShell.rotation.x=Math.PI;
+  for(const x of [-.30,.30]){
+    const blade=mesh(clasp,linkGeometry,[strap,bevel],x,0,.12);
+    blade.scale.set(.46,1.85,.36);
+    box(clasp,.12,.19,.09,bevel,x*1.8,0,.035);
+  }
+  for(const y of [-.48,.48]){
+    const pin=cylinder(clasp,.039,1.12,bevel,0,y,.06);
+    pin.rotation.set(0,0,Math.PI/2);
   }
   const plate=group(0,0,.015,[-.60,0,-.37]);
   const plateShape=new T.Shape();plateShape.absarc(0,0,1.50,0,Math.PI*2,false);
@@ -430,11 +482,11 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     const opening=new T.Path();opening.absarc(x,y,r,0,Math.PI*2,true);plateShape.holes.push(opening);
     ring(plate,r+.008,.014,bevel,x,y,.064);
   }
-  mesh(plate,new T.ExtrudeGeometry(plateShape,{depth:.048,bevelEnabled:true,bevelSize:.018,bevelThickness:.02,bevelSegments:2,curveSegments:48}),steel);
+  mesh(plate,machinedExtrusion(plateShape,{depth:.048,bevelSize:.018,bevelThickness:.02}),steel);
   ring(plate,1.39,.016,bevel,0,0,.072);
   for(let i=0;i<8;i++){
     const angle=i*Math.PI/4+.23,x=Math.cos(angle)*1.247,y=Math.sin(angle)*1.247;
-    cylinder(plate,.057,.025,bevel,x,y,.078,24);
+    cylinder(plate,.057,.025,bevel,x,y,.078);
     box(plate,.070,.010,.009,titanium,x,y,.094).rotation.z=angle;
   }
   function gear(g,r,teeth){
@@ -454,7 +506,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     const teeth=Math.round(26*r+8);
     gear(cog,r,teeth);
     gearTrain.push({cog,teeth,direction:i%2?-1:1});
-    cylinder(cog,.072,.11,ruby,0,0,.01,24);
+    cylinder(cog,.072,.11,ruby,0,0,.01);
   }
   const contactTile=document.createElement('canvas');contactTile.width=contactTile.height=64;
   const contactBrush=contactTile.getContext('2d');
@@ -475,7 +527,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     const m=box(bridges,.72,.18,.105,bevel,x,y);m.rotation.z=a;
     for(const d of [-.27,.27]) {
       const sx=x+d*Math.cos(a),sy=y+d*Math.sin(a);
-      cylinder(bridges,.053,.025,steel,sx,sy,.068,24);
+      cylinder(bridges,.053,.025,steel,sx,sy,.068);
       box(bridges,.072,.012,.009,titanium,sx,sy,.081);
     }
   }
@@ -487,15 +539,19 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   arch.bezierCurveTo(.71,-.11,.24,-.27,-.16,.16);
   arch.bezierCurveTo(-.38,.38,-.63,.39,-.84,.17);
   arch.quadraticCurveTo(-1.08,.07,-.99,.24);
-  mesh(openBridge,new T.ExtrudeGeometry(arch,{depth:.038,bevelEnabled:true,bevelSize:.022,bevelThickness:.014,bevelSegments:2,curveSegments:22}),bevel);
+  mesh(openBridge,machinedExtrusion(arch,{depth:.038,bevelSize:.022,bevelThickness:.014}),bevel);
   for(const [x,y] of [[-.91,.22],[-.18,.30],[.93,.39]]){
-    cylinder(openBridge,.061,.038,steel,x,y,.065,24);
+    cylinder(openBridge,.061,.038,steel,x,y,.065);
     box(openBridge,.072,.011,.009,titanium,x,y,.086).rotation.z=x*2;
   }
-  const holeY=-.71;
+  const holeY=-.74;
+  const registers=[[-.65,0,.332],[.65,0,.332],[0,holeY,.381]];
   const dial=group(0,0,.31,[.42,0,2.3]);
   const shape=new T.Shape();shape.absarc(0,0,1.57,0,Math.PI*2,false);
-  const hole=new T.Path();hole.absarc(0,holeY,.405,0,Math.PI*2,true);shape.holes.push(hole);
+  for(const [x,y,radius] of registers){
+    const hole=new T.Path();
+    hole.absarc(x,y,radius,0,Math.PI*2,true);shape.holes.push(hole);
+  }
   const texture=document.createElement('canvas');texture.width=texture.height=innerWidth<760?1536:2048;
   const ctx=texture.getContext('2d');const c=2048;
   ctx.scale(texture.width/4096,texture.height/4096);
@@ -518,7 +574,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   }
   const map=new T.CanvasTexture(texture);map.colorSpace=T.SRGBColorSpace;map.anisotropy=Math.min(8,render.capabilities.getMaxAnisotropy());
   document.fonts.load('500 104px StudioDisplay').catch(()=>{}).then(()=>{engrave();map.needsUpdate=true;});
-  const geo=new T.ShapeGeometry(shape,96);
+  const geo=new T.ShapeGeometry(shape,radialSegments);
   const pos=geo.attributes.position,uv=geo.attributes.uv;
   for(let i=0;i<pos.count;i++)uv.setXY(i,pos.getX(i)/3.18+.5,pos.getY(i)/3.18+.5);
   mesh(dial,geo,new T.MeshStandardMaterial({map,roughness:.40,metalness:.40,envMapIntensity:.58}));
@@ -568,38 +624,39 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   const indexShape=new T.Shape();
   indexShape.moveTo(-.010,-.054);indexShape.lineTo(.010,-.054);
   indexShape.lineTo(.014,.054);indexShape.lineTo(-.014,.054);indexShape.closePath();
-  const indexGeometry=new T.ExtrudeGeometry(indexShape,{
-    depth:.018,bevelEnabled:true,bevelSize:.006,bevelThickness:.005,bevelSegments:1,
+  const indexGeometry=machinedExtrusion(indexShape,{
+    depth:.018,bevelSize:.006,bevelThickness:.005,
   });
   for(let i=0;i<12;i++){
     const a=i*Math.PI/6;
     mesh(dial,indexGeometry,goldIndex,Math.sin(a)*1.43,-Math.cos(a)*1.43,.014).rotation.z=a;
   }
   const registerSeconds=new T.Group();
-  for(const x of [-.64,.64]){
-    cylinder(dial,.337,.034,graphite,x,.14,.024);
-    ring(dial,.332,.014,bevel,x,.14,.047);
-    ring(dial,.309,.0075,bronze,x,.14,.048);
-    for(const radius of [.105,.149,.193,.23])
-      ring(dial,radius,.0026,steel,x,.14,.043);
+  for(const [x,y,radius] of registers){
+    const openHeart=x===0;
+    const shoulder=planeRing(dial,radius+.013,radius-.031,.047,titanium,.008);
+    shoulder.position.set(x,y,-.044);
+    ring(dial,radius-.009,.011,goldEdge,x,y,.008);
+    ring(dial,radius-.033,.006,bevel,x,y,-.015);
+    if(openHeart)continue;
+    cylinder(dial,radius-.024,.029,graphite,x,y,-.0345);
+    for(let i=1;i<=8;i++)ring(dial,.036+i*.027,.00135,i%2?steel:titanium,x,y,-.018);
     for(let i=0;i<12;i++){
-      const a=i*Math.PI/6;
-      box(dial,.042,.018,.009,steel,x+.267*Math.cos(a),.14+.267*Math.sin(a),.042).rotation.z=a;
+      const angle=i*Math.PI/6;
+      box(dial,.030,.010,.004,goldEdge,x+.266*Math.cos(angle),y+.266*Math.sin(angle),-.012).rotation.z=angle;
     }
-    cylinder(dial,.024,.025,bevel,x,.14,.06,28);
-    if(x<0){
-      registerSeconds.position.set(x,.14,.074);dial.add(registerSeconds);
-      box(registerSeconds,.009,.257,.009,bronze,0,.102);
-    }else{
-      box(dial,.018,.208,.011,bronze,x+.040,.194,.071).rotation.z=-.64;
-    }
+    const pointer=x<0?registerSeconds:new T.Group();
+    pointer.position.set(x,y,-.009);
+    if(x>0)pointer.rotation.z=-.64;
+    dial.add(pointer);
+    box(pointer,.014,.218,.006,bronze,0,.082);
+    cylinder(dial,.021,.019,bevel,x,y,-.004);
   }
-  ring(dial,.405,.025,bronze,0,holeY,.02);
-  const cage=group(0,holeY,.32,[1.22,-.26,2.65]);
+  const cage=group(0,holeY,.286,[1.22,-.26,2.65]);
   ring(cage,.33,.023,bronze);ring(cage,.34,.009,goldEdge,0,0,.015);
   const balance=new T.Group();cage.add(balance);
   gear(balance,.25,20);
-  cylinder(cage,.05,.09,ruby,0,0,.026,25);
+  cylinder(cage,.05,.09,ruby,0,0,.026);
   const spring=[];
   for(let i=0;i<=128;i++){
     const a=i/128*Math.PI*9,r=.022+i/128*.142;spring.push(new T.Vector3(r*Math.cos(a),r*Math.sin(a),.048));
@@ -612,12 +669,12 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     pointer.moveTo(-width*.45,-.12);pointer.lineTo(width*.45,-.12);
     pointer.lineTo(width*.54,length*.71);pointer.lineTo(0,length);
     pointer.lineTo(-width*.54,length*.71);pointer.closePath();
-    const hand=mesh(hands,new T.ExtrudeGeometry(pointer,{
-      depth:.009,bevelEnabled:true,bevelSize:.012,bevelThickness:.010,bevelSegments:2,
+    const hand=mesh(hands,machinedExtrusion(pointer,{
+      depth:.009,bevelSize:.012,bevelThickness:.010,
     }),bronze,0,0,movement.length*.029);
     movement.push({hand,angle});
   }
-  cylinder(hands,.046,.027,bevel,0,0,.094,32);
+  cylinder(hands,.046,.027,bevel,0,0,.094);
   const bezel=group(0,0,.36,[1.13,.04,3.35]);
   const profile=[[1.55,-.06],[1.73,-.065],[1.77,-.025],[1.76,.04],[1.64,.118],[1.56,.118],[1.55,.087],[1.55,-.06]];
   const lip=mesh(bezel,new T.LatheGeometry(profile.map(p=>new T.Vector2(...p)),128),titanium);
@@ -649,14 +706,14 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
         vec3 surface=mix(coating,vec3(.98,.92,.77),ribbon);
         gl_FragColor=vec4(mix(surface,silk,accent*.62),tint+accent*.10);}`,
   });
-  const cap=mesh(bezel,new T.SphereGeometry(5.8,96,22,0,Math.PI*2,0,Math.asin(1.554/5.8)),sapphire,0,0,-5.60);
+  const cap=mesh(bezel,new T.SphereGeometry(5.8,radialSegments,32,0,Math.PI*2,0,Math.asin(1.554/5.8)),sapphire,0,0,-5.60);
   cap.rotation.x=Math.PI/2;
   cap.renderOrder=3;
 
   // Batch indices, screws, gear teeth and strap links by material and movement layer.
   for (const g of [...layers.map(layer=>layer.g),balance]) {
     const batches=new Map();
-    for (const part of g.children) if (part.geometry===unitBox||part.geometry===linkGeometry||part.geometry===braceletGeometry||part.geometry===indexGeometry){
+    for (const part of g.children) if (part.geometry===unitBox||part.geometry===cylinderGeometry||part.geometry===linkGeometry||part.geometry===braceletGeometry||part.geometry===indexGeometry){
       const materialKey=Array.isArray(part.material)?part.material.map(mat=>mat.id).join(','):part.material.id;
       const key=part.geometry.id+':'+materialKey;
       if(!batches.has(key))batches.set(key,[]);
@@ -862,9 +919,10 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       if(chapter===1)signatureAge=0;
       progress=target;showChapter(chapter);last=0;
     }
-    const delta=last?Math.min(now-last,50):16.67;last=now;
-    if(delta>28)slow++;else slow=Math.max(0,slow-1);
-    if(slow>20&&ratio>1){ratio=Math.max(1,ratio-.25);slow=0;measure();}
+    const interval=last?now-last:16.67;last=now;
+    const delta=Math.min(interval,100);
+    if(interval>28)slow++;else slow=Math.max(0,slow-1);
+    if(slow>12&&ratio>1){ratio=Math.max(1,ratio-.25);slow=0;measure();}
     progress+=(target-progress)*(1-Math.pow(.92,delta/16.67));
     px=damp(px,x,delta);py=damp(py,y,delta);
     const reveal=progress.toFixed(2);
@@ -914,7 +972,11 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       camera.position.set(-.70+progress*1.30,.64-progress*1.32,5.65-progress*.8+3.7*wide);
       camera.lookAt(-.40+progress*.70,.55-progress*.98,wide*.5);
     }else{
-      camera.position.set(0,0,(portrait?12.65:11.9)+expansion*5/Math.max(.8,camera.aspect));
+      // At the rear inspection angle, offset the camera so the closed clasp
+      // sits beside the engraving in projection.
+      const rearView=chapter===0?ease(.25,1,-Math.cos(model.rotation.y)):0;
+      camera.position.set(5.65*rearView,.8*rearView,
+        (portrait?12.65:11.9)+expansion*5/Math.max(.8,camera.aspect));
       camera.lookAt(expansion*.66,0,expansion*.45);
     }
     const sweepingCaseback=updateCaseback(delta);
