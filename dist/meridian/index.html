@@ -290,6 +290,72 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   }
   const back=group(0,0,-.37,[-.8,0,-2.8]);
   cylinder(back,1.68,.22,titanium);ring(back,1.53,.035,steel,0,0,-.12);
+  function engraveCaseback(){
+    const size=2048;
+    const plate=document.createElement('canvas');plate.width=plate.height=size;
+    const ink=plate.getContext('2d');
+    const mask=new T.CanvasTexture(plate);
+    mask.anisotropy=Math.min(8,render.capabilities.getMaxAnisotropy());
+    const uniforms={etch:{value:mask},beam:{value:-.3},glow:{value:0}};
+    const finish=new T.ShaderMaterial({
+      transparent:true,depthWrite:false,uniforms,
+      vertexShader:`varying vec2 cutUV;
+        void main(){cutUV=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
+      fragmentShader:`varying vec2 cutUV;uniform sampler2D etch;uniform float beam;uniform float glow;
+        void main(){
+          vec2 p=cutUV;
+          float cut=texture2D(etch,p).a;
+          float shadow=max(0.0,texture2D(etch,p-vec2(0.0,1.0/420.0)).a-cut);
+          float lip=max(0.0,texture2D(etch,p+vec2(0.0,.6/420.0)).a-cut);
+          float streak=exp(-pow((p.x+.55*(p.y-.5)-beam)*9.0,2.0))*glow;
+          float radial=1.0-smoothstep(.39,.495,length(p-.5));
+          float brushed=.5+.5*sin(p.x*1150.0);
+          vec3 steel=mix(vec3(.73,.69,.62),vec3(.89,.83,.70),brushed*.46);
+          vec3 chamfer=mix(vec3(.847),vec3(.898,.772,.475),.62);
+          vec3 tint=mix(steel,vec3(1.0,.937,.776),streak*.82);
+          float fill=cut*(.91+streak*.07);
+          float edge=lip*.86;
+          float groove=shadow*.96;
+          float wash=radial*streak*(.065+brushed*.023);
+          float alpha=max(max(fill,edge),max(groove,wash));
+          vec3 light=tint*fill+mix(chamfer,vec3(1.0,.97,.87),streak)*edge
+            +vec3(.02)*groove+vec3(.86,.70,.47)*wash;
+          gl_FragColor=vec4(light/max(fill+edge+groove+wash,.001),alpha);
+        }`,
+    });
+    const surface=mesh(back,new T.PlaneGeometry(3.04,3.04),finish,0,0,-.113);
+    surface.rotation.y=Math.PI;surface.renderOrder=2;
+    surface.visible=false;
+    const displayFont=[...document.querySelectorAll('style')].map(style=>style.textContent)
+      .map(css=>css.match(/@font-face\{font-family:StudioDisplay;src:url\((data:font\/woff;base64,[A-Za-z0-9+/=]+)\)/))
+      .find(Boolean)?.[1];
+    const embeddedFont=displayFont?
+      '<style>@font-face{font-family:CaseDisplay;src:url('+displayFont+') format("woff")}</style>':'';
+    const design=`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 420 420">
+      ${embeddedFont}
+      <defs><path id="perimeter" d="M210 37a173 173 0 1 1 0 346a173 173 0 1 1 0-346" transform="rotate(180 210 210)"/></defs>
+      <g fill="white" font-family="Georgia, serif" text-anchor="middle">
+        <text font-size="9.5" font-weight="600" letter-spacing="2.09"><textPath href="#perimeter" startOffset="50%" textLength="900" lengthAdjust="spacing">SWISS HOROLOGY • GRADE 5 TITANIUM • SAPPHIRE CRYSTAL • 24°28'N 54°22'E</textPath></text>
+        <text x="210" y="211" font-family="CaseDisplay, Georgia, serif" font-size="29" letter-spacing="5.22">L. CALDERIS</text>
+        <text x="210" y="253" font-size="12" letter-spacing="2.25">MERIDIAN COLLECTION</text>
+        <text x="210" y="278" font-size="11" letter-spacing="1.85">LIMITED EDITION  N° 001 / 100</text>
+      </g>
+      <g stroke="white" fill="none" stroke-width="1">
+        <circle cx="210" cy="143" r="27"/>
+        <ellipse cx="210" cy="143" rx="12" ry="27"/>
+        <path d="M183 143h54m-49-16q22 11 44 0m-44 32q22-11 44 0M210 107v72m-36-36h72M151 229h118"/>
+        <path d="m210 107 3 6-3-2-3 2zm36 36-6 3 2-3-2-3zm-36 36-3-6 3 2 3-2zm-36-36 6-3-2 3 2 3z"/>
+      </g>
+    </svg>`;
+    const artwork=new Image();
+    const ready=new Promise(resolve=>{
+      artwork.onload=()=>{ink.drawImage(artwork,0,0);mask.needsUpdate=true;resolve();};
+      artwork.onerror=resolve;
+    });
+    artwork.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(design);
+    return {surface,uniforms,ready};
+  }
+  const caseback=preview?null:engraveCaseback();
   const body=group(0,0,-.22,[0,0,-1.4]);
   planeRing(body,1.78,1.55,.52,titanium);
   ring(body,1.77,.026,bevel,0,0,.12);
@@ -721,7 +787,9 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     running=!running;liveButton.setAttribute('aria-pressed',String(running));wake();
   });
   lightButton.addEventListener('click',()=>{
-    inspect=!inspect;lightButton.setAttribute('aria-pressed',String(inspect));
+    inspect=!inspect;
+    if(inspect)rearAge=0;
+    lightButton.setAttribute('aria-pressed',String(inspect));
     touchPointer=null;x=y=0;wake();
   });
   function moveLight(event){
@@ -754,8 +822,27 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       viewport[index].art.append(canvas);
       measure();
     }else{
-      last=0;
+      last=0;rearFacing=false;
     }
+  }
+  const rearNormal=new T.Vector3(), viewDirection=new T.Vector3(), rearPosition=new T.Vector3();
+  let rearFacing=false,rearAge=0;
+  function updateCaseback(delta){
+    caseback.surface.getWorldPosition(rearPosition);
+    rearNormal.set(0,0,-1).transformDirection(back.matrixWorld);
+    viewDirection.copy(camera.position).sub(rearPosition).normalize();
+    const facing=rearNormal.dot(viewDirection);
+    const entered=facing>.5&&!rearFacing;
+    rearFacing=facing>(rearFacing?.37:.5);
+    caseback.surface.visible=facing>.12;
+    if(entered)rearAge=0;
+    if(!rearFacing){caseback.uniforms.glow.value=0;return false;}
+    rearAge+=delta;
+    const time=inspect?rearAge%6200:rearAge;
+    const travel=clamp(time/1900,0,1);
+    caseback.uniforms.beam.value=-.26+1.52*smooth(travel)+px*.14;
+    caseback.uniforms.glow.value=Math.sin(Math.PI*travel)**.8;
+    return inspect||travel<1;
   }
   function step(now){
     frame=0;
@@ -824,13 +911,14 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
       camera.position.set(0,0,(portrait?12.65:11.9)+expansion*5/Math.max(.8,camera.aspect));
       camera.lookAt(expansion*.66,0,expansion*.45);
     }
+    const sweepingCaseback=updateCaseback(delta);
     render.render(scene,camera);
     stage.dataset.gpu='active';
     const alpha=chapter===0?1-ease(.23,.51,progress):chapter===1?
       ease(.12,.35,progress)*(1-ease(.79,.99,progress)):1-ease(.19,.53,progress);
     const callout=alpha.toFixed(3);
     if(stage.style.getPropertyValue('--callout')!==callout)stage.style.setProperty('--callout',callout);
-    if(running||signatureAge<1.55||Math.abs(heritageTarget-heritage)>.004||Math.abs(target-progress)>.001||Math.abs(x-px)+Math.abs(y-py)>.003||Math.abs(sweepTarget-sweep)>.003)wake();
+    if(running||sweepingCaseback||signatureAge<1.55||Math.abs(heritageTarget-heritage)>.004||Math.abs(target-progress)>.001||Math.abs(x-px)+Math.abs(y-py)>.003||Math.abs(sweepTarget-sweep)>.003)wake();
     else last=0;
   }
   function sync(){
@@ -855,6 +943,7 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   reduce.addEventListener('change',sync);
   cacheLayout();
   signatureReady.then(wake);
+  caseback.ready.then(wake);
 })();
 </script><script>/*!
  * GSAP 3.13.0
