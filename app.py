@@ -103,7 +103,7 @@ def watch_frame_url(path):
 
 def meridian_html():
     assets = ASSETS / "meridian"
-    files = (ASSETS / "maison.css", ASSETS / "maison.js", *assets.glob("*.webp"), *assets.glob("frames/*/poster.webp"),
+    files = (ASSETS / "maison.css", ASSETS / "maison.js", *assets.glob("calderis-*.jpg"), *assets.glob("frames/*/poster.webp"),
              assets / "index.html", assets / "sand.js", assets / "editorial.css", assets / "editorial.js")
     revision = tuple((str(path), path.stat().st_mtime_ns) for path in sorted(files))
     return _meridian_html(revision)
@@ -113,9 +113,9 @@ def meridian_html():
 def _meridian_html(revision):
     page = (ASSETS / "meridian" / "index.html").read_text(encoding="utf-8")
     page = page.replace('<link rel="stylesheet" href="../maison.css">', f"<style>{(ASSETS / 'maison.css').read_text(encoding='utf-8')}</style>")
-    for name in ("calderis-together.webp", "calderis-sand.webp"):
+    for name in ("calderis-together.jpg", "calderis-sand.jpg"):
         encoded = b64encode((ASSETS / "meridian" / name).read_bytes()).decode("ascii")
-        page = page.replace(f'src="{name}"', f'src="data:image/webp;base64,{encoded}"')
+        page = page.replace(f'src="{name}"', f'src="data:image/jpeg;base64,{encoded}"')
     for chapter in ("orbit", "macro", "assembly"):
         path = f"{chapter}/poster.webp"
         page = page.replace(f'src="frames/{path}"', f'src="{watch_frame_url(path)}"')
