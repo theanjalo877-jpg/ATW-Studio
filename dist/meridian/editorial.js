@@ -2,7 +2,9 @@
   const phone = document.querySelector('.editorial-phone');
   const photo = phone.querySelector('.phone-photo-area');
   const fullscreen = document.querySelector('.editorial-fullscreen');
-  const fullImage = fullscreen.querySelector('img');
+  const fullImage = fullscreen.querySelector('.fullscreen-photo');
+  const turn = fullscreen.querySelector('.fullscreen-turn');
+  let turnAnimation;
   const slides = [...phone.querySelectorAll('.phone-slide')];
   const indicators = [...phone.querySelectorAll('.phone-progress button')];
   const title = phone.querySelector('.phone-title');
@@ -107,8 +109,29 @@
     const slide = slides[index];
     fullImage.src = slide.src;
     fullImage.alt = slide.alt;
+    const {left,top,width,height} = phone.getBoundingClientRect();
     fullscreen.showModal();
     sync();
+    if (reduced.matches) return;
+
+    for (const image of turn.querySelectorAll('img')) image.src = slide.src;
+    turn.style.setProperty('--turn-width', width + 'px');
+    turn.style.setProperty('--turn-height', height + 'px');
+    const x = left + width / 2 - fullscreen.clientWidth / 2;
+    const y = top + height / 2 - fullscreen.clientHeight / 2;
+    const fit = Math.min(fullscreen.clientWidth / height, fullscreen.clientHeight / width) * .94;
+    fullscreen.classList.add('is-turning');
+    const animation = turn.animate([
+      {transform: `translate(${x}px,${y}px) perspective(1000px) rotate(0deg) scale(1)`,opacity:1},
+      {transform: `translate(${x*.26}px,${y*.26}px) perspective(1000px) rotateX(12deg) rotate(43deg) scale(${Math.min(1,fit)*.88})`,offset:.44,opacity:1},
+      {transform: `translate(0,0) perspective(1000px) rotate(90deg) scale(${fit})`,offset:.81,opacity:1},
+      {transform: `translate(0,0) perspective(1000px) rotate(90deg) scale(${fit})`,opacity:0},
+    ], {duration:1080,easing:'cubic-bezier(.35,0,.2,1)',fill:'both'});
+    turnAnimation = animation;
+    animation.finished.then(() => {
+      fullscreen.classList.remove('is-turning');
+      animation.cancel();
+    }, () => {});
   }
 
   async function settleSwipe(gesture, commit) {
@@ -165,7 +188,11 @@
     });
   }
   fullscreen.querySelector('button').addEventListener('click', () => fullscreen.close());
-  fullscreen.addEventListener('close', () => sync());
+  fullscreen.addEventListener('close', () => {
+    turnAnimation?.cancel();
+    fullscreen.classList.remove('is-turning');
+    sync();
+  });
 
   new IntersectionObserver(([entry]) => {
     visible = entry.isIntersecting;
