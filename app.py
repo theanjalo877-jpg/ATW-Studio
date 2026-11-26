@@ -104,7 +104,7 @@ def watch_frame_url(path):
 def meridian_html():
     assets = ASSETS / "meridian"
     files = (ASSETS / "maison.css", ASSETS / "maison.js", *assets.glob("*.webp"), *assets.glob("frames/*/poster.webp"),
-             assets / "index.html", assets / "sand.js")
+             assets / "index.html", assets / "sand.js", assets / "editorial.css", assets / "editorial.js")
     revision = tuple((str(path), path.stat().st_mtime_ns) for path in sorted(files))
     return _meridian_html(revision)
 
@@ -119,7 +119,12 @@ def _meridian_html(revision):
     for chapter in ("orbit", "macro", "assembly"):
         path = f"{chapter}/poster.webp"
         page = page.replace(f'src="frames/{path}"', f'src="{watch_frame_url(path)}"')
-    page = page.replace('<script src="sand.js"></script>', f'<script>{(ASSETS / "meridian" / "sand.js").read_text(encoding="utf-8")}</script>')
+    watch_assets = ASSETS / "meridian"
+    page = page.replace('<link rel="stylesheet" href="editorial.css">',
+                        f'<style>{(watch_assets / "editorial.css").read_text(encoding="utf-8")}</style>')
+    for script in ("sand.js", "editorial.js"):
+        page = page.replace(f'<script src="{script}"></script>',
+                            f'<script>{(watch_assets / script).read_text(encoding="utf-8")}</script>')
     page = inline_maison_script(page, "../maison.js")
     return page.replace('href="../"', 'href="/" target="_blank" rel="noopener noreferrer"')
 
