@@ -63,14 +63,6 @@ body.portfolio,body.meridian{background:var(--obsidian);color:var(--pearl);font:
  background-color:var(--botanical);background-position:0 center;color:var(--highlight);border-color:var(--highlight)
 }
 .meridian .inspection-hud button[aria-pressed="true"]{background-color:var(--botanical);color:var(--highlight)}
-.portfolio .collection-glimpse::before,.portfolio .hero .stage::before{
- content:"";position:absolute;inset:9px;z-index:2;pointer-events:none;opacity:.59;
- background:linear-gradient(var(--champagne),var(--champagne)) left 4px top/1px 9px,
- linear-gradient(var(--champagne),var(--champagne)) left top 4px/9px 1px,
- linear-gradient(var(--champagne),var(--champagne)) right 4px bottom/1px 9px,
- linear-gradient(var(--champagne),var(--champagne)) right bottom 4px/9px 1px;
- background-repeat:no-repeat
-}
 .portfolio :is(.brand-projects img,.project-visual .mini,.sheet,.study-card){transition-timing-function:var(--maison-ease)}
 .meridian{--ink:var(--obsidian);--paper:var(--pearl);--gold:var(--champagne);--muted:var(--stone)}
 .meridian :is(.story,.edition){background:radial-gradient(ellipse at center,#143d3048,transparent 72%),var(--obsidian)}
